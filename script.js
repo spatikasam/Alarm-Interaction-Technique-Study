@@ -41,8 +41,11 @@ for (let i = 0; i < 24; i++) {
 let isDragging = false;
 let startY = 0;
 let startRotation = 0;
-let currentRotation = 0;
+let currentRotation = -75;  // Start with pointer at 5 AM (first alarm in list)
 let isDrawerOpen = false;
+
+// Apply initial dial rotation
+dial.style.transform = `rotate(${currentRotation}deg)`;
 
 // Function to calculate and update which hour is pointed at
 function updateAlarmFromDial() {
@@ -111,8 +114,8 @@ document.addEventListener('pointerup', (e) => {
   }
 });
 
-// Initial scroll to first alarm based on dial pointer position
-updateAlarmFromDial();
+// Alarm list starts at top, dial should reflect what's centered
+// No automatic scroll on page load
 
 // Toggle switches on click
 document.querySelectorAll('.switch').forEach(switchEl => {
