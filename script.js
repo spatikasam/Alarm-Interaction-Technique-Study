@@ -13,10 +13,21 @@ for (let i = 0; i < 24; i++) {
   tick.style.transform = `rotate(${i * 15}deg)`;
   dial.appendChild(tick);
 
-  // Display numbers: 0 and 12 show as "12", rest show as is
+  // Display numbers correctly:
+  // i=0 (top, midnight) shows 12
+  // i=1-11 show 1-11
+  // i=12 (bottom, noon) shows 12
+  // i=13-23 show 1-11
   const num = document.createElement('div');
   num.className = 'dial-number';
-  const displayHour = (i === 0 || i === 12) ? 12 : i;
+  let displayHour;
+  if (i === 0 || i === 12) {
+    displayHour = 12;  // Show 12 at both AM/PM transitions
+  } else if (i < 12) {
+    displayHour = i;   // 1-11 for first half
+  } else {
+    displayHour = i - 12;  // 1-11 for second half
+  }
   num.textContent = displayHour;
   num.style.transform = `rotate(${i * 15}deg)`;
   dial.appendChild(num);
@@ -47,13 +58,15 @@ document.addEventListener('pointermove', (e) => {
   
   const deltaY = e.clientY - startY;
   const rotationDelta = deltaY * 0.5;
-  currentRotation = startRotation + rotationDelta;
+  currentRotation = startRotation - rotationDelta;
   
   // Apply rotation to dial
   dial.style.transform = `rotate(${currentRotation}deg)`;
   
-  // Calculate which alarm hour based on rotation
-  let normalizedRotation = ((currentRotation % 360) + 360) % 360;
+  // Calculate which hour the pointer is pointing to
+  // The pointer is at the right edge (90 degrees from top in container coords)
+  // We need to find what dial hour is at that position
+  let normalizedRotation = ((-currentRotation + 90) % 360 + 360) % 360;
   let hourIndex = Math.round(normalizedRotation / 15) % 24;
   
   // Find and scroll to matching alarm
