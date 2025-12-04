@@ -153,3 +153,206 @@
       box-shadow: 0 0 20px rgba(0,0,0,0.9);
       transform: rotate(-20deg); /* initial */
     }
+
+    .dial-tick {
+      position: absolute;
+      width: 2px;
+      height: 10px;
+      background: #555;
+      left: 50%;
+      top: 10px;
+      transform-origin: 50% 100px;
+    }
+
+    .dial-number {
+      position: absolute;
+      color: #888;
+      font-size: 16px;
+      font-weight: 500;
+      left: 50%;
+      top: 25px;
+      transform-origin: 50% 85px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="status-bar">
+      <div>9:41</div>
+      <div>🔋 100%</div>
+    </div>
+
+    <div class="header">
+      <div class="header-left">Edit</div>
+      <div class="header-title">Alarm</div>
+      <div class="header-plus">+</div>
+    </div>
+
+    <div class="instruction">Drag the dial to navigate through alarms</div>
+
+    <div class="alarms-scroll" id="alarmsScroll">
+      <div class="alarm-row" data-hour="6">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">6:00</span>
+            <span class="alarm-am">AM</span>
+          </div>
+          <div class="alarm-label">Wake Up</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+        <div class="drag-handle" id="dragHandle">
+          <div class="dial-wrapper">
+            <div class="dial" id="dial"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alarm-row" data-hour="7">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">7:30</span>
+            <span class="alarm-am">AM</span>
+          </div>
+          <div class="alarm-label">Morning Exercise</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="8">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">8:15</span>
+            <span class="alarm-am">AM</span>
+          </div>
+          <div class="alarm-label">Leave for Work</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="12">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">12:00</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Lunch Break</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="15">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">3:00</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Afternoon Meeting</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="18">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">6:00</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Gym Time</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="21">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">9:00</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Wind Down</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="22">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">10:30</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Bedtime</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const handle = document.getElementById('dragHandle');
+    const dial = document.getElementById('dial');
+    const alarmsScroll = document.getElementById('alarmsScroll');
+    const alarmRows = document.querySelectorAll('.alarm-row');
+
+    // Create dial ticks and numbers
+    for (let i = 0; i < 24; i++) {
+      const tick = document.createElement('div');
+      tick.className = 'dial-tick';
+      tick.style.transform = `rotate(${i * 15}deg)`;
+      dial.appendChild(tick);
+
+      if (i % 2 === 0) {
+        const num = document.createElement('div');
+        num.className = 'dial-number';
+        num.textContent = i;
+        num.style.transform = `rotate(${i * 15}deg) translateX(-50%)`;
+        dial.appendChild(num);
+      }
+    }
+
+    let isDragging = false;
+    let startY = 0;
+    let startRotation = -20;
+    let currentRotation = -20;
+
+    handle.addEventListener('pointerdown', (e) => {
+      isDragging = true;
+      startY = e.clientY;
+      startRotation = currentRotation;
+      handle.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+
+    document.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      
+      const deltaY = e.clientY - startY;
+      const rotationDelta = deltaY * 0.5;
+      currentRotation = startRotation + rotationDelta;
+      
+      // Apply rotation to dial
+      dial.style.transform = `rotate(${currentRotation}deg)`;
+      
+      // Calculate which alarm should be highlighted based on rotation
+      const normalizedRotation = ((currentRotation % 360) + 360) % 360;
+      const hourIndex = Math.round(normalizedRotation / 15) % 24;
+      
+      // Find and scroll to matching alarm
+      alarmRows.forEach((row) => {
+        const rowHour = parseInt(row.dataset.hour);
+        if (rowHour === hourIndex) {
+          row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    });
+
+    document.addEventListener('pointerup', (e) => {
+      if (isDragging) {
+        isDragging = false;
+        handle.releasePointerCapture(e.pointerId);
+      }
+    });
+
+    // Initial scroll to first alarm
+    alarmRows[0].scrollIntoView({ behavior: 'auto', block: 'center' });
+  </script>
+</body>
+</html>
