@@ -155,10 +155,10 @@ body {
   border-radius: 160px 160px 0 0;
 }
 
-/* AM label */
+/* AM label - at 12 position for AM half */
 .dial-am-label {
   position: absolute;
-  top: 80px;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
   color: #666;
@@ -167,10 +167,10 @@ body {
   z-index: 2;
 }
 
-/* PM label */
+/* PM label - at 6 position for PM half */
 .dial-pm-label {
   position: absolute;
-  bottom: 80px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   color: #666;
@@ -212,13 +212,13 @@ body {
   position: absolute;
   width: 32px;
   height: 16px;
-  background: #ff9500;
+  background: #ffcc00;
   clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
   left: -16px;
   top: 50%;
   transform: translateY(-50%);
   z-index: 15;
-  box-shadow: 0 0 10px rgba(255, 149, 0, 0.6);
+  box-shadow: 0 0 12px rgba(255, 204, 0, 0.7);
   pointer-events: none;
 }
 

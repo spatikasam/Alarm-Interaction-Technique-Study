@@ -4,17 +4,17 @@ const dragHandle = document.getElementById('dragHandle');
 const alarmsScroll = document.getElementById('alarmsScroll');
 const alarmRows = document.querySelectorAll('.alarm-row');
 
-// Create dial ticks and numbers (0-23 hours)
+// Create dial ticks and numbers (12-hour clock format)
 for (let i = 0; i < 24; i++) {
   const tick = document.createElement('div');
   tick.className = 'dial-tick';
   tick.style.transform = `rotate(${i * 15}deg)`;
   dial.appendChild(tick);
 
-  // Add number for every hour
+  // Add number for every hour (1-12 for clock, repeated for 24h)
   const num = document.createElement('div');
   num.className = 'dial-number';
-  num.textContent = i;
+  num.textContent = i === 0 ? 12 : (i > 12 ? i - 12 : i);
   num.style.transform = `rotate(${i * 15}deg)`;
   dial.appendChild(num);
 }
