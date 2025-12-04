@@ -58,7 +58,7 @@ document.addEventListener('pointermove', (e) => {
   
   const deltaY = e.clientY - startY;
   const rotationDelta = deltaY * 0.5;
-  currentRotation = startRotation - rotationDelta;
+  currentRotation = startRotation + rotationDelta;  // Finger movement directly controls dial
   
   // Apply rotation to dial
   dial.style.transform = `rotate(${currentRotation}deg)`;
@@ -74,6 +74,7 @@ document.addEventListener('pointermove', (e) => {
   // Each hour is 15 degrees (360/24)
   let hourIndex = Math.round(hourAngle / 15) % 24;
   
+  // Invert scroll direction: when dial rotates up (negative delta), scroll down (later hours)
   // Find and scroll to matching alarm
   alarmRows.forEach((row) => {
     const rowHour = parseInt(row.dataset.hour);
@@ -100,3 +101,11 @@ document.addEventListener('pointerup', (e) => {
 setTimeout(() => {
   alarmRows[0].scrollIntoView({ behavior: 'auto', block: 'center' });
 }, 100);
+
+// Toggle switches on click
+document.querySelectorAll('.switch').forEach(switchEl => {
+  switchEl.addEventListener('click', (e) => {
+    e.stopPropagation();
+    switchEl.classList.toggle('off');
+  });
+});
