@@ -168,12 +168,12 @@ body {
   pointer-events: none;
 }
 
-/* AM label - in the middle of AM half (left side) */
+/* AM label - in the middle of AM half (right side) */
 .dial-am-label {
   position: absolute;
   top: 50%;
-  left: 80px;
-  transform: translateY(-50%) rotateZ(180deg);
+  right: 80px;
+  transform: translateY(-50%);
   color: #666;
   font-size: 16px;
   font-weight: 600;
@@ -189,12 +189,12 @@ body {
   stroke: #666;
 }
 
-/* PM label - in the middle of PM half (right side) */
+/* PM label - in the middle of PM half (left side) */
 .dial-pm-label {
   position: absolute;
   top: 50%;
-  right: 80px;
-  transform: translateY(-50%);
+  left: 80px;
+  transform: translateY(-50%) rotateZ(180deg);
   color: #666;
   font-size: 16px;
   font-weight: 600;
