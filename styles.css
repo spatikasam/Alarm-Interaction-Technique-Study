@@ -113,7 +113,7 @@ body {
 /* DIAL drawer */
 .dial-container {
   position: absolute;
-  left: -280px;       /* mostly off-screen; only a bit visible */
+  left: -300px;       /* peek out slightly on the left */
   top: 50%;           /* vertically center */
   transform: translateY(-50%);
   width: 320px;
@@ -125,7 +125,7 @@ body {
 
 /* when drawer is fully open, we add a class via JS */
 .dial-container.open {
-  left: -20px;        /* fully visible quarter circle */
+  left: 0;            /* fully visible quarter circle */
 }
 
 .dial {
@@ -155,10 +155,10 @@ body {
   border-radius: 160px 160px 0 0;
 }
 
-/* AM label - at 12 position for AM half */
+/* AM label - in the middle of AM half */
 .dial-am-label {
   position: absolute;
-  top: 20px;
+  top: 80px;
   left: 50%;
   transform: translateX(-50%);
   color: #666;
@@ -167,10 +167,10 @@ body {
   z-index: 2;
 }
 
-/* PM label - at 6 position for PM half */
+/* PM label - in the middle of PM half */
 .dial-pm-label {
   position: absolute;
-  bottom: 20px;
+  bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
   color: #666;

@@ -4,17 +4,21 @@ const dragHandle = document.getElementById('dragHandle');
 const alarmsScroll = document.getElementById('alarmsScroll');
 const alarmRows = document.querySelectorAll('.alarm-row');
 
-// Create dial ticks and numbers (12-hour clock format)
+// Create dial ticks and numbers (24 hours on clock)
+// Hours 0-11 (midnight to noon) = AM side (top half)
+// Hours 12-23 (noon to midnight) = PM side (bottom half)
 for (let i = 0; i < 24; i++) {
   const tick = document.createElement('div');
   tick.className = 'dial-tick';
   tick.style.transform = `rotate(${i * 15}deg)`;
   dial.appendChild(tick);
 
-  // Add number for every hour (1-12 for clock, repeated for 24h)
+  // Display hour numbers 0-11 for both AM and PM (clock style)
+  // 0 and 12 both show as 12, 1-11 show as 1-11
   const num = document.createElement('div');
   num.className = 'dial-number';
-  num.textContent = i === 0 ? 12 : (i > 12 ? i - 12 : i);
+  const displayHour = (i % 12) === 0 ? 12 : (i % 12);
+  num.textContent = displayHour;
   num.style.transform = `rotate(${i * 15}deg)`;
   dial.appendChild(num);
 }
