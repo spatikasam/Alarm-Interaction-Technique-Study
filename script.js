@@ -41,11 +41,12 @@ let startRotation = 0;
 let currentRotation = 0;
 let isDrawerOpen = false;
 
-dragHandle.addEventListener('pointerdown', (e) => {
+// Start drag when hovering over the dial container (peeking portion)
+dialContainer.addEventListener('pointerdown', (e) => {
   isDragging = true;
   startY = e.clientY;
   startRotation = currentRotation;
-  dragHandle.setPointerCapture(e.pointerId);
+  dialContainer.setPointerCapture(e.pointerId);
   e.preventDefault();
   
   // Open drawer on drag start
