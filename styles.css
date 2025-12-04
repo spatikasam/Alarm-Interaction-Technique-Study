@@ -148,7 +148,7 @@ body {
 /* DIAL drawer */
 .dial-container {
   position: absolute;
-  left: -120px;       /* peek out ~200px (62% of 320px) on the left */
+  left: -130px;       /* peek out ~190px (59% of 320px) on the left */
   top: 50%;           /* vertically center */
   transform: translateY(-50%);
   width: 320px;
@@ -187,7 +187,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: conic-gradient(from 90deg, transparent 0deg, transparent 90deg, rgba(13, 13, 13, 0.4) 90deg, rgba(13, 13, 13, 0.4) 270deg, transparent 270deg, transparent 360deg);
+  background: conic-gradient(from 90deg, transparent 0deg, transparent 90deg, rgba(0, 0, 0, 0.6) 90deg, rgba(0, 0, 0, 0.6) 270deg, transparent 270deg, transparent 360deg);
   pointer-events: none;
   border-radius: 50%;
 }
@@ -238,7 +238,8 @@ body {
   top: 10px;
   margin-left: -1.5px;
   transform-origin: 50% 150px;
-  opacity: 0.8;
+  opacity: 0;
+  transition: opacity 0.3s ease-out 0.1s;
 }
 
 /* hour numbers */
@@ -275,6 +276,14 @@ body {
 }
 
 .dial-container.open .dial-pointer {
+  opacity: 1;
+}
+
+.dial-container.open .dial-tick {
+  opacity: 0.8;
+}
+
+.dial-container.open .dial-number {
   opacity: 1;
 }
 
