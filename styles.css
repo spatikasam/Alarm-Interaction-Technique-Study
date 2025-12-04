@@ -222,14 +222,14 @@ body {
   z-index: 2;
 }
 
-/* orange pointer - fixed in center of container */
+/* orange pointer - fixed in center of container, touching dial edge */
 .dial-pointer {
   position: absolute;
   width: 28px;
   height: 18px;
   background: #ffcc00;
   clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
-  right: -1px;
+  left: 159px;        /* touches dial edge (160px radius - 1px overlap) */
   top: 50%;
   transform: translateY(-50%);
   z-index: 15;
