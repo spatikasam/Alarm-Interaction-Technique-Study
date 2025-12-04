@@ -113,7 +113,7 @@ body {
 /* DIAL drawer */
 .dial-container {
   position: absolute;
-  left: -300px;       /* peek out slightly on the left */
+  left: -250px;       /* peek out ~70px on the left */
   top: 50%;           /* vertically center */
   transform: translateY(-50%);
   width: 320px;
@@ -139,7 +139,7 @@ body {
   box-shadow: 0 0 20px rgba(0,0,0,0.9);
   border: 2px solid #333;
   transform-origin: 50% 50%;
-  transform: rotate(-40deg);  /* initial angle */
+  transform: rotate(0deg);  /* 12 at top, 6 at bottom for proper AM/PM split */
   pointer-events: none;       /* rotation via handle */
 }
 
@@ -214,7 +214,7 @@ body {
   height: 16px;
   background: #ffcc00;
   clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
-  left: -16px;
+  right: -16px;
   top: 50%;
   transform: translateY(-50%);
   z-index: 15;

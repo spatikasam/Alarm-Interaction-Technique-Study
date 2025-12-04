@@ -5,19 +5,18 @@ const alarmsScroll = document.getElementById('alarmsScroll');
 const alarmRows = document.querySelectorAll('.alarm-row');
 
 // Create dial ticks and numbers (24 hours on clock)
-// Hours 0-11 (midnight to noon) = AM side (top half)
-// Hours 12-23 (noon to midnight) = PM side (bottom half)
+// Hour 0 (midnight) at top = 12 (AM to PM transition)
+// Hour 12 (noon) at bottom = 12 (PM to AM transition)
 for (let i = 0; i < 24; i++) {
   const tick = document.createElement('div');
   tick.className = 'dial-tick';
   tick.style.transform = `rotate(${i * 15}deg)`;
   dial.appendChild(tick);
 
-  // Display hour numbers 0-11 for both AM and PM (clock style)
-  // 0 and 12 both show as 12, 1-11 show as 1-11
+  // Display numbers: 0 and 12 show as "12", rest show as is
   const num = document.createElement('div');
   num.className = 'dial-number';
-  const displayHour = (i % 12) === 0 ? 12 : (i % 12);
+  const displayHour = (i === 0 || i === 12) ? 12 : i;
   num.textContent = displayHour;
   num.style.transform = `rotate(${i * 15}deg)`;
   dial.appendChild(num);
@@ -25,8 +24,8 @@ for (let i = 0; i < 24; i++) {
 
 let isDragging = false;
 let startY = 0;
-let startRotation = -40;
-let currentRotation = -40;
+let startRotation = 0;
+let currentRotation = 0;
 let isDrawerOpen = false;
 
 dragHandle.addEventListener('pointerdown', (e) => {
