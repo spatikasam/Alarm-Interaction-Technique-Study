@@ -156,7 +156,7 @@ body {
   pointer-events: none;       /* rotation via handle */
 }
 
-/* AM/PM semicircle divider - rotated -180deg so split goes through top/bottom */
+/* AM/PM semicircle divider - rotated -90deg anticlockwise around center */
 .dial::before {
   content: '';
   position: absolute;
@@ -167,27 +167,27 @@ body {
   background: #0d0d0d;
   border-radius: 160px 160px 0 0;
   transform-origin: center;
-  transform: rotate(-180deg);
+  transform: rotate(-90deg);
 }
 
-/* AM label - in the middle of AM half (top) */
+/* AM label - in the middle of AM half (left side) */
 .dial-am-label {
   position: absolute;
-  top: 80px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 50%;
+  left: 80px;
+  transform: translateY(-50%);
   color: #666;
   font-size: 16px;
   font-weight: 600;
   z-index: 2;
 }
 
-/* PM label - in the middle of PM half (bottom) */
+/* PM label - in the middle of PM half (right side) */
 .dial-pm-label {
   position: absolute;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 50%;
+  right: 80px;
+  transform: translateY(-50%);
   color: #666;
   font-size: 16px;
   font-weight: 600;
