@@ -157,6 +157,7 @@ body {
 }
 
 /* AM/PM semicircle divider - shaded PM half (right side through the 12s) */
+/* AM/PM semicircle divider - shaded PM half (right side through the 12s) */
 .dial::before {
   content: '';
   position: absolute;
@@ -166,6 +167,7 @@ body {
   height: 100%;
   background: conic-gradient(from 90deg, transparent 0deg, transparent 90deg, #0d0d0d 90deg, #0d0d0d 270deg, transparent 270deg, transparent 360deg);
   pointer-events: none;
+  border-radius: 50%;
 }
 
 /* AM label - in the middle of AM half (right side) */
