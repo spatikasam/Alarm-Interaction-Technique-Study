@@ -4,12 +4,19 @@ const dragHandle = document.getElementById('dragHandle');
 const alarmsScroll = document.getElementById('alarmsScroll');
 const alarmRows = document.querySelectorAll('.alarm-row');
 
-// Create dial ticks (24-hour markers)
+// Create dial ticks and numbers (0-23 hours)
 for (let i = 0; i < 24; i++) {
   const tick = document.createElement('div');
   tick.className = 'dial-tick';
   tick.style.transform = `rotate(${i * 15}deg)`;
   dial.appendChild(tick);
+
+  // Add number for every hour
+  const num = document.createElement('div');
+  num.className = 'dial-number';
+  num.textContent = i;
+  num.style.transform = `rotate(${i * 15}deg)`;
+  dial.appendChild(num);
 }
 
 let isDragging = false;

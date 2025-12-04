@@ -113,10 +113,10 @@ body {
 /* DIAL drawer */
 .dial-container {
   position: absolute;
-  left: -120px;       /* mostly off-screen; only a bit visible */
-  top: 190px;         /* align with mid alarms */
-  width: 200px;
-  height: 200px;
+  left: -280px;       /* mostly off-screen; only a bit visible */
+  top: 180px;         /* align with mid alarms */
+  width: 320px;
+  height: 320px;
   overflow: hidden;
   z-index: 10;
   transition: left 0.25s ease-out;
@@ -124,59 +124,111 @@ body {
 
 /* when drawer is fully open, we add a class via JS */
 .dial-container.open {
-  left: 0;            /* fully visible quarter circle */
+  left: -20px;        /* fully visible quarter circle */
 }
 
 .dial {
   position: absolute;
-  left: -100px;       /* center circle slightly outside left edge */
-  top: 0;
-  width: 200px;
-  height: 200px;
+  left: -160px;       /* center circle slightly outside left edge */
+  top: -160px;
+  width: 320px;
+  height: 320px;
   border-radius: 50%;
-  background: #111;
+  background: #1a1a1a;
   box-shadow: 0 0 20px rgba(0,0,0,0.9);
-  border: 2px solid #222;
+  border: 2px solid #333;
   transform-origin: 50% 50%;
   transform: rotate(-40deg);  /* initial angle */
   pointer-events: none;       /* rotation via handle */
 }
 
-/* ticks */
-.dial-tick {
+/* AM/PM semicircle divider */
+.dial::before {
+  content: '';
   position: absolute;
-  width: 2px;
-  height: 10px;
-  background: #e5e5e5;
-  left: 50%;
-  top: 10px;
-  margin-left: -1px;
-  transform-origin: 50% 90px;
-  opacity: 0.7;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: #0d0d0d;
+  border-radius: 100px 100px 0 0;
 }
 
-/* orange pointer wedge */
+/* AM label */
+.dial-am-label {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #666;
+  font-size: 16px;
+  font-weight: 600;
+  z-index: 2;
+}
+
+/* PM label */
+.dial-pm-label {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #666;
+  font-size: 16px;
+  font-weight: 600;
+  z-index: 2;
+}
+
+/* ticks - longer for hours */
+.dial-tick {
+  position: absolute;
+  width: 3px;
+  height: 20px;
+  background: #666;
+  left: 50%;
+  top: 10px;
+  margin-left: -1.5px;
+  transform-origin: 50% 150px;
+  opacity: 0.8;
+}
+
+/* hour numbers */
+.dial-number {
+  position: absolute;
+  color: #aaa;
+  font-size: 16px;
+  font-weight: 600;
+  left: 50%;
+  top: 35px;
+  transform-origin: 50% 125px;
+  width: 28px;
+  text-align: center;
+  margin-left: -14px;
+  z-index: 2;
+}
+
+/* orange pointer - fixed in center of container */
 .dial-pointer {
   position: absolute;
-  width: 28px;
-  height: 14px;
-  background: #ffcc66;
+  width: 32px;
+  height: 16px;
+  background: #ff9500;
   clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
-  left: 50%;
-  top: 95px;
-  transform-origin: 0% 50%;
-  transform: rotate(0deg);
-  box-shadow: 0 0 10px rgba(0,0,0,0.7);
+  left: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 15;
+  box-shadow: 0 0 10px rgba(255, 149, 0, 0.6);
+  pointer-events: none;
 }
 
 /* drag handle over list */
 .drag-handle {
   position: absolute;
   left: 50%;
-  top: 210px;          /* align with dial center */
+  top: 340px;          /* align with dial center */
   transform: translate(-50%, -50%);
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #d0d0d0;
   box-shadow: 0 0 8px rgba(0,0,0,0.6);
