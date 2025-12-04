@@ -44,6 +44,28 @@ let startRotation = 0;
 let currentRotation = 0;
 let isDrawerOpen = false;
 
+// Function to calculate and update which hour is pointed at
+function updateAlarmFromDial() {
+  let pointerAngle = 90; // Pointer at right edge
+  let dialRotation = currentRotation % 360;
+  
+  // Calculate the angle the pointer is pointing to on the dial
+  let pointedAngle = (pointerAngle - dialRotation) % 360;
+  if (pointedAngle < 0) pointedAngle += 360;
+  
+  // Convert angle to 24-hour index (0-23)
+  let hourIndex = Math.round((12 - pointedAngle / 15) % 24);
+  if (hourIndex < 0) hourIndex += 24;
+  
+  // Find and scroll to matching alarm
+  alarmRows.forEach((row) => {
+    const rowHour = parseInt(row.dataset.hour);
+    if (rowHour === hourIndex) {
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+}
+
 // Start drag when hovering over the dial container (peeking portion)
 dialContainer.addEventListener('pointerdown', (e) => {
   isDragging = true;
@@ -69,33 +91,8 @@ document.addEventListener('pointermove', (e) => {
   // Apply rotation to dial
   dial.style.transform = `rotate(${currentRotation}deg)`;
   
-  // Calculate which hour the pointer is pointing to
-  // Pointer is at right edge (3 o'clock position = 90 degrees in normal math)
-  // Hour 0 (12 AM) is at 270° (left), Hour 12 (12 PM) is at 90° (right)
-  // So pointer at 90° points to hour 12 (noon)
-  
-  let pointerAngle = 90; // Pointer at right edge
-  let dialRotation = currentRotation % 360;
-  
-  // Calculate the angle the pointer is pointing to on the dial
-  let pointedAngle = (pointerAngle - dialRotation) % 360;
-  if (pointedAngle < 0) pointedAngle += 360;
-  
-  // Convert angle to 24-hour index (0-23)
-  // At 90° (right), hour = 12; at 270° (left), hour = 0
-  // So: hour = (90 - pointedAngle) / 15 -> needs adjustment
-  // Actually: pointedAngle 90° = hour 12, pointedAngle 0° = hour 6, pointedAngle 270° = hour 0
-  // Formula: hour = (12 - pointedAngle/15) % 24
-  let hourIndex = Math.round((12 - pointedAngle / 15) % 24);
-  if (hourIndex < 0) hourIndex += 24;
-  
-  // Find and scroll to matching alarm
-  alarmRows.forEach((row) => {
-    const rowHour = parseInt(row.dataset.hour);
-    if (rowHour === hourIndex) {
-      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  });
+  // Update alarm list to reflect current dial position
+  updateAlarmFromDial();
 });
 
 document.addEventListener('pointerup', (e) => {
