@@ -210,16 +210,17 @@ body {
 /* orange pointer - fixed in center of container */
 .dial-pointer {
   position: absolute;
-  width: 32px;
-  height: 16px;
+  width: 40px;
+  height: 24px;
   background: #ffcc00;
   clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
-  right: -32px;
+  right: 0;
   top: 50%;
   transform: translateY(-50%);
   z-index: 15;
   box-shadow: 0 0 12px rgba(255, 204, 0, 0.7);
   pointer-events: none;
+  border-radius: 0 12px 12px 0;
 }
 
 /* drag handle over list */

@@ -64,10 +64,15 @@ document.addEventListener('pointermove', (e) => {
   dial.style.transform = `rotate(${currentRotation}deg)`;
   
   // Calculate which hour the pointer is pointing to
-  // The pointer is at the right edge (90 degrees from top in container coords)
-  // We need to find what dial hour is at that position
-  let normalizedRotation = ((-currentRotation + 90) % 360 + 360) % 360;
-  let hourIndex = Math.round(normalizedRotation / 15) % 24;
+  // Pointer is at right edge (3 o'clock position = 90 degrees)
+  // Account for dial rotation to find which hour aligns with pointer
+  let pointerAngle = 90; // Pointer at right edge
+  let dialRotation = currentRotation;
+  let hourAngle = (pointerAngle - dialRotation) % 360;
+  if (hourAngle < 0) hourAngle += 360;
+  
+  // Each hour is 15 degrees (360/24)
+  let hourIndex = Math.round(hourAngle / 15) % 24;
   
   // Find and scroll to matching alarm
   alarmRows.forEach((row) => {
