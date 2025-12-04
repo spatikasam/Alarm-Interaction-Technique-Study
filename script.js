@@ -5,10 +5,13 @@ const alarmsScroll = document.getElementById('alarmsScroll');
 const alarmRows = document.querySelectorAll('.alarm-row');
 
 // Create dial ticks and numbers (24 hours on clock)
-// AM half is top (darker), PM half is bottom (lighter)
-// Divider is horizontal line across the middle
-// Hour 0 (midnight/12 AM) at top (0°)
-// Hour 12 (noon/12 PM) at bottom (180°)
+// AM/PM divider is vertical (left/right) rotated -90deg
+// Left side (270° to 90° going counter-clockwise) = AM hours
+// Right side (90° to 270° going counter-clockwise) = PM hours
+// Hour 0 (midnight/12 AM) at 270° (left)
+// Hour 6 (6 AM) at 0° (top)
+// Hour 12 (noon/12 PM) at 90° (right)
+// Hour 18 (6 PM) at 180° (bottom)
 for (let i = 0; i < 24; i++) {
   const tick = document.createElement('div');
   tick.className = 'dial-tick';
@@ -16,15 +19,15 @@ for (let i = 0; i < 24; i++) {
   dial.appendChild(tick);
 
   // Display 12-hour format numbers:
-  // 0 (0°, top) = 12 AM
-  // 1-11 (15°-165°) = 1-11 AM
-  // 12 (180°, bottom) = 12 PM
-  // 13-23 (195°-345°) = 1-11 PM
+  // i=0 (270°) = 12 AM (left)
+  // i=6 (0°) = 6 AM (top)
+  // i=12 (90°) = 12 PM (right)
+  // i=18 (180°) = 6 PM (bottom)
   const num = document.createElement('div');
   num.className = 'dial-number';
   let displayHour;
   if (i === 0 || i === 12) {
-    displayHour = 12;  // 12 at top (midnight) and bottom (noon)
+    displayHour = 12;  // 12 at left (midnight) and right (noon)
   } else if (i < 12) {
     displayHour = i;   // 1-11 for AM
   } else {
