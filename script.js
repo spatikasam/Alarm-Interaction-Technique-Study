@@ -54,13 +54,10 @@ function updateAlarmFromDial() {
   if (pointedAngle < 0) pointedAngle += 360;
   
   // Convert angle to 24-hour index (0-23)
-  // At start: pointedAngle 90° should = hour 12 (noon, pointing at right where 12 PM is)
-  // When pointedAngle = 90°, we want hour = 12
-  // When pointedAngle = 0°, we want hour = 6 (top shows 6 AM)
-  // When pointedAngle = 180°, we want hour = 18 (bottom shows 6 PM)
-  // When pointedAngle = 270°, we want hour = 0 (left shows 12 AM)
-  // Formula: hour = (6 + pointedAngle/15) % 24
-  let hourIndex = Math.round((6 + pointedAngle / 15) % 24);
+  // The dial positions hours at: 0° = 6 AM (i=6), 15° = 7 AM (i=7), etc.
+  // So at angle θ, the hour index i = θ/15 + 6
+  // But we need to account for 24-hour wrapping
+  let hourIndex = Math.round((pointedAngle / 15 + 6) % 24);
   if (hourIndex < 0) hourIndex += 24;
   
   // Find and scroll to matching alarm
@@ -114,10 +111,8 @@ document.addEventListener('pointerup', (e) => {
   }
 });
 
-// Initial scroll to first alarm
-setTimeout(() => {
-  alarmRows[0].scrollIntoView({ behavior: 'auto', block: 'center' });
-}, 100);
+// Initial scroll to first alarm based on dial pointer position
+updateAlarmFromDial();
 
 // Toggle switches on click
 document.querySelectorAll('.switch').forEach(switchEl => {
