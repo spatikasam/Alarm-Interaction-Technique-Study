@@ -173,11 +173,20 @@ body {
   position: absolute;
   top: 50%;
   left: 80px;
-  transform: translateY(-50%);
+  transform: translateY(-50%) rotateZ(180deg);
   color: #666;
   font-size: 16px;
   font-weight: 600;
   z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.label-icon {
+  width: 20px;
+  height: 20px;
+  stroke: #666;
 }
 
 /* PM label - in the middle of PM half (right side) */
@@ -190,6 +199,9 @@ body {
   font-size: 16px;
   font-weight: 600;
   z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* ticks - longer for hours */
