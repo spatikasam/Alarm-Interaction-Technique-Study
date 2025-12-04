@@ -1,0 +1,195 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.phone {
+  width: 390px;
+  height: 844px;
+  border-radius: 40px;
+  background: #000;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+  position: relative;
+  padding-top: 52px;
+  color: #f5f5f5;
+}
+
+.status-bar {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 0;
+  padding: 0 16px;
+  color: #fff;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  opacity: 0.85;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  margin-bottom: 4px;
+  color: #f5f5f5;
+}
+.header-left { font-size: 17px; color: #ff9f0a; cursor: default; }
+.header-title { font-size: 22px; font-weight: 600; }
+.header-plus { font-size: 30px; color: #ff9f0a; line-height: 1; cursor: default; }
+
+.instruction {
+  font-size: 13px;
+  opacity: 0.8;
+  padding: 0 20px 6px 20px;
+}
+
+.alarms-scroll {
+  position: absolute;
+  top: 104px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow-y: auto;
+  padding-bottom: 40px;
+}
+
+.alarm-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 16px 72px;
+  border-top: 0.5px solid #222;
+  position: relative;
+  scroll-margin-top: 88px;
+  background: #000;
+}
+.alarm-row:last-child { border-bottom: 0.5px solid #222; }
+
+.alarm-time {
+  font-size: 32px;
+  font-weight: 300;
+  color: #f5f5f5;
+  letter-spacing: 1px;
+}
+.alarm-am {
+  font-size: 16px;
+  margin-left: 4px;
+  color: #f5f5f5;
+}
+.alarm-label {
+  font-size: 13px;
+  color: #9f9f9f;
+  margin-top: 2px;
+}
+.alarm-left { display: flex; flex-direction: column; }
+
+.switch {
+  width: 51px;
+  height: 31px;
+  border-radius: 16px;
+  background: #34c759;
+  position: relative;
+}
+.switch-knob {
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: #fff;
+  position: absolute;
+  top: 2px;
+  left: 22px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+
+/* DIAL drawer */
+.dial-container {
+  position: absolute;
+  left: -120px;       /* mostly off-screen; only a bit visible */
+  top: 190px;         /* align with mid alarms */
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
+  z-index: 10;
+  transition: left 0.25s ease-out;
+}
+
+/* when drawer is fully open, we add a class via JS */
+.dial-container.open {
+  left: 0;            /* fully visible quarter circle */
+}
+
+.dial {
+  position: absolute;
+  left: -100px;       /* center circle slightly outside left edge */
+  top: 0;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: #111;
+  box-shadow: 0 0 20px rgba(0,0,0,0.9);
+  border: 2px solid #222;
+  transform-origin: 50% 50%;
+  transform: rotate(-40deg);  /* initial angle */
+  pointer-events: none;       /* rotation via handle */
+}
+
+/* dark wedge like your screenshot */
+.dial-wedge {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #151515;
+  clip-path: polygon(0% 100%, 100% 100%, 100% 0%);
+}
+
+/* ticks */
+.dial-tick {
+  position: absolute;
+  width: 2px;
+  height: 10px;
+  background: #e5e5e5;
+  left: 50%;
+  top: 10px;
+  margin-left: -1px;
+  transform-origin: 50% 90px;
+  opacity: 0.7;
+}
+
+/* orange pointer wedge */
+.dial-pointer {
+  position: absolute;
+  width: 28px;
+  height: 14px;
+  background: #ffcc66;
+  clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
+  left: 50%;
+  top: 95px;
+  transform-origin: 0% 50%;
+  transform: rotate(0deg);
+  box-shadow: 0 0 10px rgba(0,0,0,0.7);
+}
+
+/* drag handle over list */
+.drag-handle {
+  position: absolute;
+  left: 50%;
+  top: 210px;          /* align with dial center */
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #d0d0d0;
+  box-shadow: 0 0 8px rgba(0,0,0,0.6);
+  z-index: 20;
+  cursor: pointer;
+  touch-action: none;  /* we handle pan ourselves */
+}

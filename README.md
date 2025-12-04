@@ -1,37 +1,33 @@
 # Alarm Interaction Technique Study
 
-An interactive web-based experiment for studying different alarm interaction techniques on mobile devices.
+A user study interface comparing radial clock-wheel navigation vs. standard vertical scroll for iOS alarm management.
 
-## Overview
+## Research Question
 
-This project implements a user study interface that simulates an iOS-style alarm application. It allows researchers to test and compare different interaction techniques for managing alarms.
+How does the interaction technique (standard vertical Scroll list vs. Radial Clock-Wheel filter), list length, and target alarm position affect task completion time, perceived mental effort, and error rate when turning off a specific alarm?
 
-## Features
+## Study Design
 
-- iOS-style alarm interface simulation
-- Interactive alarm dial navigation
-- Touch and drag interactions
-- Responsive mobile design (optimized for 390×844px screens)
-- Clean, modern UI matching iOS design patterns
+**Target Population:** University students and working young adults aged 18–30 who use smartphone alarms daily.
 
-## Getting Started
+**Task:** Locate and turn off a specific highlighted alarm as quickly and accurately as possible.
 
-Simply open `index.html` in a modern web browser to run the experiment.
+**Measures:**
+- Primary: Task completion time (seconds)
+- Secondary: Perceived mental effort (NASA-TLX 0–100)
+- Exploratory: Error rate (%)
 
-### Live Demo
+## Design Rationale
 
-You can view the live demo by visiting: https://spatikasam.github.io/Alarm-Interaction-Technique-Study/
+The standard iOS alarm list requires repetitive scrolling to access alarms within extensive lists, imposing unnecessary cognitive and physical effort. This radial clock-wheel technique addresses navigation inefficiency by utilizing a spatial metaphor—users can locate alarms through a single gesture that reflects their mental model of time.
 
-## Technologies Used
+## Demo
 
-- HTML5
-- CSS3
-- Vanilla JavaScript
+View live: https://spatikasam.github.io/Alarm-Interaction-Technique-Study/
 
 ## Project Structure
 
-- `index.html` - Main application file containing the complete experiment interface
-
-## License
-
-This project is available for academic and research purposes.
+- `index.html` - Main experiment interface
+- `styles.css` - iOS-style UI design
+- `script.js` - Dial interaction logic
+- `README.md` - Study documentation
