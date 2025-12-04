@@ -125,7 +125,7 @@ body {
 /* DIAL drawer */
 .dial-container {
   position: absolute;
-  left: -304px;       /* peek out 16px (5% of 320px) on the left */
+  left: -240px;       /* peek out ~80px (25% of 320px) on the left */
   top: 50%;           /* vertically center */
   transform: translateY(-50%);
   width: 320px;
@@ -156,7 +156,7 @@ body {
   pointer-events: none;       /* rotation via handle */
 }
 
-/* AM/PM semicircle divider - rotated -90deg so split goes through the 12s */
+/* AM/PM semicircle divider - rotated -180deg so split goes through top/bottom */
 .dial::before {
   content: '';
   position: absolute;
@@ -167,27 +167,27 @@ body {
   background: #0d0d0d;
   border-radius: 160px 160px 0 0;
   transform-origin: center;
-  transform: rotate(-90deg);
+  transform: rotate(-180deg);
 }
 
-/* AM label - in the middle of AM half (left side) */
+/* AM label - in the middle of AM half (top) */
 .dial-am-label {
   position: absolute;
-  top: 50%;
-  left: 80px;
-  transform: translateY(-50%);
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
   color: #666;
   font-size: 16px;
   font-weight: 600;
   z-index: 2;
 }
 
-/* PM label - in the middle of PM half (right side) */
+/* PM label - in the middle of PM half (bottom) */
 .dial-pm-label {
   position: absolute;
-  top: 50%;
-  right: 80px;
-  transform: translateY(-50%);
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
   color: #666;
   font-size: 16px;
   font-weight: 600;
@@ -240,16 +240,5 @@ body {
 
 /* drag handle over list */
 .drag-handle {
-  position: absolute;
-  left: 50%;
-  top: 50%;           /* vertically center to match dial */
-  transform: translate(-50%, -50%);
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #d0d0d0;
-  box-shadow: 0 0 8px rgba(0,0,0,0.6);
-  z-index: 20;
-  cursor: pointer;
-  touch-action: none;  /* we handle pan ourselves */
+  display: none;
 }
