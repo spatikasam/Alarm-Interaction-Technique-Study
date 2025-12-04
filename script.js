@@ -47,8 +47,8 @@ let isDrawerOpen = false;
 // Apply initial dial rotation
 dial.style.transform = `rotate(${currentRotation}deg)`;
 
-// Function to calculate and update which hour is pointed at
-function updateAlarmFromDial() {
+// Function to calculate which hour is pointed at (without scrolling)
+function getPointedHour() {
   let pointerAngle = 90; // Pointer at right edge
   let dialRotation = currentRotation % 360;
   
@@ -63,13 +63,7 @@ function updateAlarmFromDial() {
   let hourIndex = Math.round((pointedAngle / 15 + 6) % 24);
   if (hourIndex < 0) hourIndex += 24;
   
-  // Find and scroll to matching alarm
-  alarmRows.forEach((row) => {
-    const rowHour = parseInt(row.dataset.hour);
-    if (rowHour === hourIndex) {
-      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  });
+  return hourIndex;
 }
 
 // Start drag when hovering over the dial container (peeking portion)
@@ -97,8 +91,7 @@ document.addEventListener('pointermove', (e) => {
   // Apply rotation to dial
   dial.style.transform = `rotate(${currentRotation}deg)`;
   
-  // Update alarm list to reflect current dial position
-  updateAlarmFromDial();
+  // Dial updates but alarm list stays at top (no auto-scroll)
 });
 
 document.addEventListener('pointerup', (e) => {
