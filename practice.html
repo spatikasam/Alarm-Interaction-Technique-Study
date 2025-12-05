@@ -175,6 +175,7 @@
     function buildAlarmList(trial, targetIdx) {
       const list = alarms.slice(0, trial.len);
       dom.scroll.innerHTML = '';
+      dom.scroll.scrollTop = 0;  // Reset scroll to top immediately
       
       // Randomly turn on 30-50% of alarms (not including target)
       const numOn = Math.floor(trial.len * (0.3 + Math.random() * 0.2));
