@@ -8,154 +8,185 @@
   :root { --blue:#007aff; --red:#ff3b30; --green:#34c759; }
   * { box-sizing:border-box; margin:0; padding:0; }
   body {
-    font-family:-apple-system,system-ui,sans-serif;
-    background:#f2f2f7; color:#1d1d1f;
-    min-height:100dvh; padding:20px;
-    line-height:1.5;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+    background:#000;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    overflow-x:hidden;
   }
-  .container { max-width:1000px; margin:0 auto; }
+  
+  .phone {
+    width:390px;
+    max-width:100vw;
+    height:844px;
+    max-height:100vh;
+    background:#1c1c1e;
+    overflow-y:auto;
+    overflow-x:hidden;
+    color:#f5f5f5;
+    position:relative;
+  }
 
-  h1 { text-align:center; font-size:32px; font-weight:800; margin:20px 0 10px; }
+  .container { 
+    padding:20px;
+    width:100%;
+  }
+
+  h1 { 
+    text-align:center; 
+    font-size:28px; 
+    font-weight:700; 
+    margin:20px 0 8px;
+    color:#fff;
+  }
+  
+  h1 small {
+    display:block;
+    font-weight:400;
+    font-size:14px;
+    color:#8e8e93;
+    margin-top:4px;
+  }
+  
   .config, #trial-table-container, #results-container {
-    background:white; border-radius:20px; padding:24px; margin:20px 0;
-    box-shadow:0 10px 30px rgba(0,0,0,0.1);
+    background:#2c2c2e; 
+    border-radius:16px; 
+    padding:16px; 
+    margin:16px 0;
   }
+  
+  label {
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    color:#8e8e93;
+    margin-bottom:6px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+  
+  input {
+    width:100%;
+    padding:12px;
+    font-size:16px;
+    border:none;
+    border-radius:10px;
+    margin-bottom:12px;
+    background:#3a3a3c;
+    color:#fff;
+    font-family:inherit;
+  }
+  
+  input::placeholder {
+    color:#636366;
+  }
+  
   button {
-    background:var(--blue); color:white; border:none; border-radius:14px;
-    padding:16px 32px; font-size:20px; font-weight:700; cursor:pointer;
+    background:var(--blue); 
+    color:white; 
+    border:none; 
+    border-radius:12px;
+    padding:14px 24px; 
+    font-size:17px; 
+    font-weight:600; 
+    cursor:pointer;
+    width:100%;
   }
-  button:disabled { background:#aaa; cursor:not-allowed; }
+  button:disabled { background:#3a3a3c; color:#636366; cursor:not-allowed; }
 
-  /* ==================== ONLY THE TRIAL PART IS INSIDE IPHONE ==================== */
-  .iphone-frame {
-    width:420px; height:900px; background:#111; border-radius:64px;
-    padding:20px; margin:40px auto; box-shadow:0 20px 60px rgba(0,0,0,0.4);
-    display:none; /* hidden until experiment starts */
+  table { 
+    width:100%; 
+    border-collapse:collapse; 
+    margin-top:10px;
+    font-size:13px;
   }
-  .iphone {
-    width:100%; height:100%; background:#000; border-radius:50px; overflow:hidden;
-    position:relative; box-shadow:0 0 0 12px #222;
+  th, td { 
+    padding:10px 6px; 
+    text-align:left; 
+    border-bottom:1px solid #3a3a3c;
   }
-  .notch {
-    position:absolute; top:8px; left:50%; transform:translateX(-50%);
-    width:210px; height:34px; background:#000; border-radius:20px; z-index:10;
+  th { 
+    background:#3a3a3c; 
+    font-weight:600;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    color:#8e8e93;
   }
-  .screen {
-    width:100%; height:100%; background:#f5f5f7; border-radius:44px; overflow:hidden;
-    display:flex; flex-direction:column;
+  
+  td {
+    color:#f5f5f5;
   }
-
-  /* iOS Status Bar */
-  .status-bar {
-    height:48px; background:#000000e6; backdrop-filter:blur(10px);
-    display:flex; align-items:center; justify-content:space-between; padding:0 24px;
-    font-size:16px; font-weight:600; color:white; z-index:9;
+  
+  #trial-table-container h2,
+  #results-container h2 {
+    font-size:20px;
+    font-weight:600;
+    margin-bottom:12px;
+    color:#fff;
   }
-  .time { font-weight:700; font-size:18px; }
-  .battery { width:28px; height:13px; border:2.5px solid white; border-radius:4px; position:relative; }
-  .battery::after { content:''; position:absolute; right:-5px; top:3px; width:5px; height:7px; background:white; }
-
-  /* Alarm Header */
-  .header {
-    height:100px; background:#f2f2f7; display:flex; align-items:center; justify-content:center;
-    font-size:36px; font-weight:800; color:#000; position:relative;
+  
+  .start-button-container {
+    text-align:center;
+    margin:30px 0 40px;
   }
-  .header::before { content:"9:41"; position:absolute; left:24px; top:14px; font-size:16px; color:#000; font-weight:600; }
-  .header .bell { position:absolute; right:24px; top:16px; font-size:26px; color:var(--red); animation:ring 2s infinite; }
-  @keyframes ring { 0%,100% { transform:rotate(0); } 10%,30%,50%,70%,90% { transform:rotate(-15deg); } 20%,40%,60%,80% { transform:rotate(15deg); } }
-
-  /* Alarm List */
-  .alarm-list {
-    flex:1; overflow-y:auto; padding:12px 0 120px;
-    -webkit-overflow-scrolling:touch;
+  
+  #start {
+    font-size:18px;
+    padding:16px 40px;
   }
-  .alarm-item {
-    margin:0 18px 12px; background:white; border-radius:18px;
-    padding:20px 22px; display:flex; justify-content:space-between; align-items:center;
-    box-shadow:0 2px 8px rgba(0,0,0,0.1);
-    transition:background 0.3s;
+  
+  #download-csv {
+    margin-top:16px;
+    font-size:16px;
+    padding:14px 32px;
   }
-  .time-label { font-size:36px; font-weight:600; color:#000; }
-  .ampm { font-size:15px; color:#888; margin-top:4px; }
-
-  /* iOS Switch */
-  .switch { position:relative; display:inline-block; width:51px; height:31px; }
-  .switch input { opacity:0; width:0; height:0; }
-  .slider { position:absolute; inset:0; background:#c7c7cc; border-radius:34px; transition:.3s; }
-  .slider:before { content:""; position:absolute; width:27px; height:27px; left:2px; bottom:2px;
-                   background:white; border-radius:50%; transition:.3s; box-shadow; }
-  input:checked + .slider { background:var(--green); }
-  input:checked + .slider:before { transform:translateX(20px); }
-
-  /* Quick Panel */
-  .quick-panel {
-    position:fixed; top:0; left:-300px; width:300px; height:100dvh;
-    background:rgba(255,255,255,0.95); backdrop-filter:blur(30px);
-    border-right:6px solid var(--blue); box-shadow:20px 0 60px rgba(0,0,0,0.3);
-    padding:120px 24px 40px; transition:left .45s ease;
-    z-index:1000; display:flex; flex-direction:column; gap:16px;
-  }
-  .quick-panel.open { left:0; }
-  .panel-title {
-    position:fixed; top:48px; left:0; width:300px; background:rgba(255,255,255,0.98);
-    padding:20px; text-align:center; font-weight:800; font-size:22px; color:var(--blue);
-    border-bottom:3px solid #d0d0d7; z-index:1001;
-  }
-  .hour-btn {
-    padding:24px; background:#f0f0f7; border:none; border-radius:20px;
-    font-size:24px; font-weight:700; color:#000;
-  }
-
-  .tap-zone { position:fixed; left:0; top:0; width:140px; height:100dvh; z-index:999; }
-
-  /* Mental effort sheet */
-  .mental-sheet {
-    position:fixed; bottom:-400px; left:50%; transform:translateX(-50%);
-    width:390px; background:white; border-radius:32px 32px 0 0;
-    padding:30px 20px 40px; box-shadow:0 -10px 40px rgba(0,0,0,0.3);
-    transition:bottom .5s ease; z-index:1002; text-align:center;
-  }
-  .mental-sheet.visible { bottom:0; }
-
-  table { width:100%; border-collapse:collapse; margin-top:10px; }
-  th, td { padding:12px; text-align:left; border-bottom:1px solid #ddd; }
-  th { background:#f0f0f7; font-weight:700; }
+</style>
 </style>
 </head>
 <body>
 
-<div class="container">
-  <h1>Scroll vs Quick Panel<br><small style="font-weight:400;font-size:18px;">Alarm Deactivation Study</small></h1>
+<div class="phone">
+  <div class="container">
+    <h1>Alarm Study<br><small>Scroll vs Quick Panel</small></h1>
 
-  <div class="config">
-    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
-      <div style="flex:1;min-width:220px;"><label>Participant ID</label><input id="pid" value="P001" style="width:100%;padding:12px;font-size:16px;border:2px solid #ddd;border-radius:10px;margin-top:8px;"></div>
-      <div style="flex:1;min-width:140px;"><label>Trials per condition</label><input id="reps" type="number" value="5" min="1" style="width:100%;padding:12px;font-size:16px;border:2px solid #ddd;border-radius:10px;margin-top:8px;"></div>
-      <div style="flex:1;min-width:180px;"><label>Seed (optional)</label><input id="seed" placeholder="leave empty = random" style="width:100%;padding:12px;font-size:16px;border:2px solid #ddd;border-radius:10px;margin-top:8px;"></div>
+    <div class="config">
+      <div>
+        <label>Participant ID</label>
+        <input id="pid" value="P001">
+      </div>
+      <div>
+        <label>Trials per condition</label>
+        <input id="reps" type="number" value="5" min="1">
+      </div>
+      <div>
+        <label>Seed (optional)</label>
+        <input id="seed" placeholder="random">
+      </div>
+      <button id="gen">Generate Trial Order</button>
     </div>
-    <button id="gen" style="width:100%;padding:18px;">Generate Trial Order</button>
-  </div>
 
-  <div id="trial-table-container" style="display:none;">
-    <h2 style="margin-bottom:12px;">Trial Order (Quick Panel block first)</h2>
-    <table id="trial-table">
-      <thead><tr><th>#</th><th>Technique</th><th>Length</th><th>Position</th><th>Rep</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
+    <div id="trial-table-container" style="display:none;">
+      <h2>Trial Order</h2>
+      <table id="trial-table">
+        <thead><tr><th>#</th><th>Tech</th><th>Len</th><th>Pos</th><th>Rep</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
-  <div style="text-align:center;margin:50px 0;">
-    <button id="start" disabled style="padding:22px 80px;font-size:24px;">Start Experiment</button>
-  </div>
+    <div class="start-button-container">
+      <button id="start" disabled>Start Experiment</button>
+    </div>
 
-  <div id="results-container" style="display:none;">
-    <h2>Experiment Complete – Results</h2>
-    <table id="results-table">
-      <thead><tr><th>PID</th><th>Trial</th><th>Tech</th><th>Len</th><th>Pos</th><th>Rep</th><th>Time(ms)</th><th>Errors</th><th>Mental</th><th>Target</th></tr></thead>
-      <tbody></tbody>
-    </table>
-    <div style="text-align:center;margin-top:30px;">
-      <button id="download-csv" style="padding:18px 50px;font-size:21px;">Download CSV</button>
+    <div id="results-container" style="display:none;">
+      <h2>Results</h2>
+      <table id="results-table">
+        <thead><tr><th>PID</th><th>Trial</th><th>Tech</th><th>Len</th><th>Pos</th><th>Rep</th><th>Time(ms)</th><th>Errors</th><th>Mental</th><th>Target</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <button id="download-csv">Download CSV</button>
     </div>
   </div>
 </div>
@@ -204,7 +235,7 @@ document.getElementById('gen').onclick = () => {
 
   document.getElementById('trial-table-container').style.display='block';
   document.getElementById('start').disabled=false;
-  alert(`Generated ${state.trials.length} trials – Quick Panel first`);
+  alert(`Generated ${state.trials.length} trials`);
 };
 
 // Start → redirect to index.html with trial data
