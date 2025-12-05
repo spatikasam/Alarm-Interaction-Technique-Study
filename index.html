@@ -293,14 +293,15 @@ document.getElementById('gen').onclick = () => {
   alert(`Generated 58 total trials:\n  • 4 practice trials (not logged)\n  • 54 logged trials (3 blocks × 18 conditions)`);
 };
 
-// Start → redirect to experiment.html with trial data
+// Start → redirect to practice.html with trial data
 document.getElementById('start').onclick = () => {
-  // Store trial configuration in sessionStorage
-  sessionStorage.setItem('experimentTrials', JSON.stringify(state.trials));
+  // Store trial configuration in sessionStorage (only logged trials, no practice)
+  const loggedTrials = state.trials.filter(t => !t.isPractice);
+  sessionStorage.setItem('experimentTrials', JSON.stringify(loggedTrials));
   sessionStorage.setItem('participantId', state.participantId);
   
-  // Redirect to experiment.html
-  window.location.href = 'experiment.html';
+  // Redirect to practice.html first
+  window.location.href = 'practice.html';
 };
 
 // Results display

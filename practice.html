@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Practice Trials - Alarm Study</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="phone">
+    <div class="status-bar">
+      <div class="status-time">9:41</div>
+      <div class="status-right">
+        <svg class="status-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        <svg class="status-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.34C7 21.4 7.6 22 8.33 22h7.34c.73 0 1.33-.6 1.33-1.33V5.33C19 4.6 18.4 4 17.67 4zm.33 16H8V6h8v14z"/></svg>
+      </div>
+    </div>
+
+    <div class="header">
+      <div class="header-left">Edit</div>
+      <div class="header-subtitle" id="header-subtitle">🔷 PRACTICE • Trial 1 of 4</div>
+      <div class="header-plus">+</div>
+    </div>
+
+    <div class="alarms-scroll" id="alarmsScroll"></div>
+
+    <div class="dial-container">
+      <div class="dial" id="dial">
+        <div class="dial-am-label">
+          <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          AM
+        </div>
+        <div class="dial-pm-label">
+          <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          PM
+        </div>
+      </div>
+      <div class="dial-pointer"></div>
+    </div>
+
+    <div id="trial-modal" class="trial-modal">
+      <div class="trial-modal-content">
+        <h2 id="modal-title">Practice Trial 1</h2>
+        <p id="modal-body">Turn off the target alarm.</p>
+        <ul class="modal-steps">
+          <li>Note the target alarm time below.</li>
+          <li>Use the shown technique to find and turn it off.</li>
+          <li>Only turn off that alarm; others count as errors.</li>
+        </ul>
+        <button id="modal-start" class="pill-btn">Begin trial</button>
+      </div>
+    </div>
+
+    <div id="effort-modal" class="trial-modal hidden">
+      <div class="trial-modal-content">
+        <h2>Mental effort</h2>
+        <p>How mentally demanding was this task? (0 = very low, 100 = very high)</p>
+        <input id="effort-slider" type="range" min="0" max="100" value="50" />
+        <div class="slider-labels">
+          <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+        </div>
+        <button id="effort-submit" class="pill-btn">Submit rating</button>
+      </div>
+    </div>
+    
+    <div class="timer-display hidden" id="timer-display">--</div>
+    
+    <div class="break-overlay hidden" id="break-overlay">
+      <div>Short break</div>
+      <div class="break-countdown" id="break-countdown">3</div>
+      <div style="font-size: 14px; color: #8e8e93;">Next trial soon...</div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+  (() => {
+    // 4 fixed practice trials
+    const practiceTrials = [
+      { tech: 'Scroll', len: 10, pos: 'Top' },
+      { tech: 'Scroll', len: 10, pos: 'Middle' },
+      { tech: 'Radial Clock-Wheel', len: 10, pos: 'Top' },
+      { tech: 'Radial Clock-Wheel', len: 10, pos: 'Bottom' }
+    ];
+
+    const store = {
+      idx: 0,
+      trial: null,
+      target: null,
+      errors: 0,
+      active: false,
+      startTime: 0,
+      timerInterval: null,
+      breakInterval: null
+    };
+
+    const alarms = (() => {
+      const pool = [];
+      const labs = ['Wake up', 'Meds', 'Gym', 'Meeting', 'Call Mom', 'Lunch', 'Dentist', 'Walk', 'Dinner', 'Read'];
+      for (let h = 0; h < 24; h++) {
+        pool.push({ h, label: labs[h % labs.length] });
+      }
+      return pool;
+    })();
+
+    const fmt = {
+      time: (a) => {
+        const h12 = a.h === 0 ? 12 : a.h > 12 ? a.h - 12 : a.h;
+        const ap = a.h < 12 ? 'AM' : 'PM';
+        return { time: `${h12}:00`, ap, full: `${h12}:00 ${ap}`, h: a.h };
+      },
+      target: (pos, len) => pos === 'Top' ? 0 : pos === 'Bottom' ? Math.max(len - 1, 0) : Math.floor(len / 2)
+    };
+
+    const dom = {
+      scroll: document.getElementById('alarmsScroll'),
+      dial: document.querySelector('.dial-container'),
+      modal: document.getElementById('trial-modal'),
+      mTitle: document.getElementById('modal-title'),
+      mBody: document.getElementById('modal-body'),
+      mStart: document.getElementById('modal-start'),
+      effort: document.getElementById('effort-modal'),
+      slider: document.getElementById('effort-slider'),
+      submit: document.getElementById('effort-submit'),
+      timerDisplay: document.getElementById('timer-display'),
+      breakOverlay: document.getElementById('break-overlay'),
+      breakCountdown: document.getElementById('break-countdown')
+    };
+
+    function buildAlarmList(trial, targetIdx) {
+      const list = alarms.slice(0, trial.len);
+      dom.scroll.innerHTML = '';
+
+      list.forEach((a, i) => {
+        const { time, ap } = fmt.time(a);
+        const isTarget = i === targetIdx;
+        const row = document.createElement('div');
+        row.className = 'alarm-row' + (isTarget ? ' target-row' : '');
+        row.dataset.h = a.h;
+        row.innerHTML = `
+          <div class="alarm-left">
+            <div><span class="alarm-time">${time}</span><span class="alarm-am">${ap}</span></div>
+            <div class="alarm-label">${isTarget ? 'Target alarm — turn off' : a.label}</div>
+          </div>
+          <div class="switch${isTarget ? '' : ' off'}"><div class="switch-knob"></div></div>
+        `;
+        dom.scroll.appendChild(row);
+      });
+
+      if (window.alarmDial && window.alarmDial.refresh) {
+        window.alarmDial.refresh();
+      }
+    }
+
+    function renderTrial() {
+      if (store.idx >= practiceTrials.length) {
+        // Practice complete, go to main experiment
+        window.location.href = 'experiment.html';
+        return;
+      }
+
+      store.trial = practiceTrials[store.idx];
+      const list = alarms.slice(0, store.trial.len);
+      const tIdx = fmt.target(store.trial.pos, list.length);
+      store.target = list[tIdx];
+      store.errors = 0;
+      store.active = false;
+
+      document.getElementById('header-subtitle').textContent = `🔷 PRACTICE • Trial ${store.idx + 1} of 4 • ${store.trial.tech}`;
+
+      buildAlarmList(store.trial, tIdx);
+
+      const useDial = store.trial.tech === 'Radial Clock-Wheel';
+      dom.dial.style.display = useDial ? 'block' : 'none';
+      if (window.alarmDial) {
+        window.alarmDial.setActive(useDial);
+      }
+
+      const t = fmt.time(store.target);
+      dom.mTitle.textContent = `Practice Trial ${store.idx + 1}`;
+      dom.mBody.textContent = `Target: ${t.full} • Technique: ${store.trial.tech}`;
+
+      dom.modal.classList.remove('hidden');
+    }
+
+    dom.mStart.onclick = () => {
+      dom.modal.classList.add('hidden');
+      store.active = true;
+      store.startTime = Date.now();
+      startTimer();
+    };
+
+    function startTimer() {
+      dom.timerDisplay.classList.remove('hidden');
+      let elapsed = 0;
+      store.timerInterval = setInterval(() => {
+        elapsed = Math.floor((Date.now() - store.startTime) / 1000);
+        dom.timerDisplay.textContent = `${elapsed}s`;
+      }, 100);
+    }
+
+    function stopTimer() {
+      if (store.timerInterval) {
+        clearInterval(store.timerInterval);
+        store.timerInterval = null;
+      }
+      dom.timerDisplay.classList.add('hidden');
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!store.active) return;
+      const row = e.target.closest('.alarm-row');
+      if (!row) return;
+
+      const clickH = +row.dataset.h;
+      if (clickH === store.target.h) {
+        finalizeTrial();
+      } else {
+        store.errors++;
+        console.log('Wrong alarm! Errors:', store.errors);
+      }
+    });
+
+    async function showBreak(seconds) {
+      dom.breakOverlay.classList.remove('hidden');
+      let remaining = seconds;
+      dom.breakCountdown.textContent = remaining;
+
+      return new Promise(resolve => {
+        store.breakInterval = setInterval(() => {
+          remaining--;
+          dom.breakCountdown.textContent = remaining;
+          if (remaining <= 0) {
+            clearInterval(store.breakInterval);
+            dom.breakOverlay.classList.add('hidden');
+            resolve();
+          }
+        }, 1000);
+      });
+    }
+
+    dom.submit.onclick = async () => {
+      dom.submit.disabled = true;
+      console.log(`Practice ${store.idx + 1} complete • Effort: ${dom.slider.value}`);
+      
+      await showBreak(3);
+      
+      store.idx += 1;
+      dom.submit.textContent = 'Submit rating';
+      dom.submit.disabled = false;
+      dom.slider.value = 50;
+      
+      renderTrial();
+    };
+
+    function finalizeTrial() {
+      stopTimer();
+      store.active = false;
+      dom.modal.classList.add('hidden');
+      dom.effort.classList.remove('hidden');
+      dom.submit.disabled = false;
+    }
+
+    // Initialize
+    console.log('🔷 PRACTICE MODE - 4 trials');
+    renderTrial();
+  })();
+  </script>
+</body>
+</html>
