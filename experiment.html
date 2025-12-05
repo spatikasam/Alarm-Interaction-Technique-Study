@@ -84,6 +84,33 @@
       <div class="break-countdown" id="break-countdown">60</div>
       <div style="font-size: 14px; color: #8e8e93;">Resuming soon...</div>
     </div>
+    
+    <!-- Pre-Experiment Instructions -->
+    <div id="intro-screen" class="trial-modal">
+      <div class="trial-modal-content">
+        <h2>Welcome to the Alarm Study</h2>
+        <p>You will complete a series of trials where you find and turn off a target alarm.</p>
+        <ul class="modal-steps">
+          <li><strong>Practice:</strong> 4 practice trials to familiarize yourself with the task</li>
+          <li><strong>Main Study:</strong> 54 trials divided into 3 blocks of 18 trials each</li>
+          <li>Two techniques: <strong>Scroll</strong> and <strong>Radial Clock-Wheel</strong></li>
+          <li>Rate your mental effort after each trial</li>
+          <li>Take breaks between blocks</li>
+        </ul>
+        <p style="margin-top: 20px; font-size: 14px; color: #8e8e93;">Estimated time: 32-36 minutes</p>
+        <button id="begin-practice" class="pill-btn">Begin Practice Trials</button>
+      </div>
+    </div>
+    
+    <!-- Post-Experiment Screen -->
+    <div id="post-screen" class="trial-modal hidden">
+      <div class="trial-modal-content">
+        <h2>Study Complete!</h2>
+        <p>Thank you for completing all trials.</p>
+        <p style="margin-top: 20px;">Your data has been saved automatically.</p>
+        <button id="return-home" class="pill-btn">Return to Setup Page</button>
+      </div>
+    </div>
   </div>
 
   <script src="script.js"></script>
@@ -272,16 +299,25 @@
     }
 
     // ============ RENDER ============
-    function render() {
-      console.log('Render called, idx:', store.idx, 'trials:', store.trials.length);
-      if (store.idx >= store.trials.length) return done();
+    function renderTrial() {
+      console.log(`▶ Starting trial ${store.idx + 1}/${store.trials.length}`);
+      
+      if (store.idx >= store.trials.length) {
+        return showPostQuestionnaire();
+      }
 
       store.trial = store.trials[store.idx];
-      console.log('Current trial:', store.trial);
+      const isPractice = store.trial.isPractice === true;
+      
+      // Log trial type
+      if (isPractice) {
+        console.log(`  🔷 PRACTICE trial ${store.idx + 1}`);
+      } else {
+        console.log(`  📊 Block ${store.trial.blockNo}, Trial ${store.trial.trialNo} of 54 (logged)`);
+      }
+      console.log(`  Technique: ${store.trial.tech}, Len: ${store.trial.len}, Pos: ${store.trial.pos}`);
       
       const list = alarms.slice(0, store.trial.len);
-      console.log('Alarm list length:', list.length);
-      
       const tIdx = fmt.target(store.trial.pos, list.length);
       store.target = list[tIdx];
       store.errors = 0;
@@ -289,20 +325,19 @@
       store.pending = null;
 
       // Update header subtitle with block and trial info
-      const isPractice = store.trial.isPractice ? ' PRACTICE' : '';
-      const blockInfo = store.trial.isPractice ? '🔷 PRACTICE' : `Block ${store.trial.blockNo}`;
+      const practiceLabel = isPractice ? ' PRACTICE' : '';
+      const blockInfo = isPractice ? '🔷 PRACTICE' : `Block ${store.trial.blockNo}`;
       if (document.getElementById('header-subtitle')) {
-        document.getElementById('header-subtitle').textContent = `${blockInfo} • Trial ${store.idx + 1} of ${store.trials.length} • ${store.trial.tech}${isPractice}`;
+        document.getElementById('header-subtitle').textContent = `${blockInfo} • Trial ${store.idx + 1} of ${store.trials.length} • ${store.trial.tech}${practiceLabel}`;
       }
 
       buildAlarmList(store.trial, tIdx);
 
       const useDial = store.trial.tech === 'Radial Clock-Wheel';
-      console.log('Dial display:', useDial ? 'VISIBLE' : 'HIDDEN', '(Technique:', store.trial.tech + ')');
+      console.log('  Dial:', useDial ? 'VISIBLE' : 'HIDDEN');
       dom.dial.style.display = useDial ? 'block' : 'none';
       if (window.alarmDial) {
         window.alarmDial.setActive(useDial);
-        console.log('✓ Dial active:', useDial);
       }
 
       const t = fmt.time(store.target);
@@ -311,7 +346,22 @@
       dom.modal.classList.remove('hidden');
 
       dom.submit.disabled = true;
-      dom.submit.textContent = store.idx === store.trials.length - 1 ? 'Finish trials' : 'Submit rating';
+      dom.submit.textContent = 'Submit rating';
+    }
+    
+    function showPostQuestionnaire() {
+      console.log('✅ All trials complete!');
+      // Hide trial UI
+      dom.modal.classList.add('hidden');
+      dom.effort.classList.add('hidden');
+      dom.dial.style.display = 'none';
+      document.getElementById('alarmsScroll').style.display = 'none';
+      
+      // Show post-experiment screen
+      const postScreen = document.getElementById('post-screen');
+      if (postScreen) {
+        postScreen.classList.remove('hidden');
+      }
     }
 
     // ============ EVENTS ============
@@ -403,17 +453,16 @@
       // Check for block break (after trials 22 and 40)
       const isBlockComplete = store.idx === 22 || store.idx === 40; // After first and second logged block
       if (isBlockComplete && store.idx < store.trials.length) {
+        console.log(`🎯 Block complete! Taking 60s break before Block ${store.trials[store.idx].blockNo}`);
         await showBreak(60, true); // 1-minute block break
       }
       
-      if (store.idx < store.trials.length) {
-        // Reset button for next trial
-        dom.submit.textContent = 'Submit rating';
-        dom.submit.id = 'effort-submit';
-        render();
-      } else {
-        done();
-      }
+      // Reset button for next trial
+      dom.submit.textContent = 'Submit rating';
+      dom.submit.id = 'effort-submit';
+      
+      // Advance to next trial
+      renderTrial();
     };
 
     function finalizeTrial() {
@@ -488,11 +537,54 @@
       return;
     }
     
-    render();
-
-    // ✓ VERIFICATION: 3-block factorial design
+    // Count practice vs logged trials
     const practiceCount = store.trials.filter(t => t.isPractice).length;
     const loggedCount = store.trials.filter(t => !t.isPractice).length;
+    console.log('═══════════════════════════════════════════════');
+    console.log('🧪 ALARM INTERACTION STUDY - AUTOMATED SEQUENCE');
+    console.log('═══════════════════════════════════════════════');
+    console.log(`✓ Loaded ${store.trials.length} trials total`);
+    console.log(`  • ${practiceCount} practice trials (NOT logged)`);
+    console.log(`  • ${loggedCount} logged trials (3 blocks × 18)`);
+    console.log(`✓ Participant: ${store.pid}`);
+    console.log('═══════════════════════════════════════════════');
+    console.log('📋 SEQUENCE:');
+    console.log('  1. Pre-experiment instructions');
+    console.log('  2. Practice trials (4)');
+    console.log('  3. Block 1 (18 trials)');
+    console.log('  4. Block 2 (18 trials)');
+    console.log('  5. Block 3 (18 trials)');
+    console.log('  6. Post-experiment debrief');
+    console.log('═══════════════════════════════════════════════');
+    
+    // Hide main trial UI initially (show intro screen only)
+    document.getElementById('header-subtitle').classList.add('hidden');
+    document.getElementById('alarmsScroll').classList.add('hidden');
+    document.querySelector('.dial-container').classList.add('hidden');
+    
+    // Set up intro screen button
+    const beginBtn = document.getElementById('begin-practice');
+    if (beginBtn) {
+      beginBtn.onclick = () => {
+        console.log('🚀 Starting experiment sequence...\n');
+        document.getElementById('intro-screen').classList.add('hidden');
+        // Show main UI elements
+        document.getElementById('header-subtitle').classList.remove('hidden');
+        document.getElementById('alarmsScroll').classList.remove('hidden');
+        document.querySelector('.dial-container').classList.remove('hidden');
+        renderTrial();
+      };
+    }
+    
+    // Set up post-experiment return button
+    const returnBtn = document.getElementById('return-home');
+    if (returnBtn) {
+      returnBtn.onclick = () => {
+        window.location.href = 'index.html';
+      };
+    }
+
+    // ✓ VERIFICATION: 3-block factorial design
     console.log('✓ 3-Block Factorial Design loaded');
     console.log('✓ Trials:', practiceCount, 'practice (not logged) +', loggedCount, 'logged = ', store.trials.length, 'total');
     console.log('✓ Participant:', store.pid);
