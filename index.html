@@ -78,6 +78,28 @@
     color:#fff;
     font-family:inherit;
   }
+
+  select {
+    width:100%;
+    padding:12px;
+    font-size:16px;
+    border:none;
+    border-radius:10px;
+    margin-bottom:12px;
+    background:#3a3a3c;
+    color:#fff;
+    font-family:inherit;
+    appearance:none;
+    background-image: linear-gradient(45deg, transparent 50%, #8e8e93 50%),
+                      linear-gradient(135deg, #8e8e93 50%, transparent 50%);
+    background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+  }
+
+  .config > div {
+    margin-bottom:12px;
+  }
   
   input::placeholder {
     color:#636366;
@@ -168,48 +190,51 @@
         <select id="block-order">
           <option value="scroll-first">Scroll first, then Radial Clock-Wheel</option>
           <option value="radial-first">Radial Clock-Wheel first, then Scroll</option>
-        </select>
-      </div>
-      <div>
-        <label>Seed (optional)</label>
-        <input id="seed" placeholder="random">
-      </div>
-      <p style="font-size:12px; color:#8e8e93; margin-top:8px;">36 trials total (2 reps × 18 conditions • ~39 min)</p>
-      <button id="gen">Generate Trial Order</button>
-    </div>
+        // Generate trials
+        document.getElementById('gen').onclick = () => {
+          const reps = 2; // fixed: 2 reps => 36 trials total
+          const seedInput = document.getElementById('seed');
+          const seed = seedInput && seedInput.value.trim() !== '' ? +seedInput.value : Math.random() * 4294967295;
+          const blockOrder = (document.getElementById('block-order')?.value) || 'scroll-first';
+          const rng = mulberry32(seed);
 
-    <div id="trial-table-container" style="display:none;">
-      <h2>Trial Order</h2>
-      <table id="trial-table">
-        <thead><tr><th>#</th><th>Tech</th><th>Len</th><th>Pos</th><th>Rep</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
+          const conditions = [];
+          ['Radial Clock-Wheel','Scroll'].forEach(tech=>[10,20,30].forEach(len=>['Top','Middle','Bottom'].forEach(pos=>conditions.push({tech,len,pos}))));
 
-    <div class="start-button-container">
-      <button id="start" disabled>Start Experiment</button>
-    </div>
+          const all = [];
+          conditions.forEach(c=>{for(let i=1;i<=reps;i++)all.push({...c,rep:i});});
 
-    <div id="results-container" style="display:none;">
-      <h2>Results</h2>
-      <table id="results-table">
-        <thead><tr><th>PID</th><th>Tech</th><th>Len</th><th>Pos</th><th>Rep</th><th>Trial</th><th>Start</th><th>Duration_ms</th><th>Errors</th><th>Mental</th><th>Target</th></tr></thead>
-        <tbody></tbody>
-      </table>
-      <button id="load-results">Load latest results</button>
-      <button id="download-csv">Download CSV</button>
-    </div>
-  </div>
-</div>
+          const blocks = {'Radial Clock-Wheel':[],'Scroll':[]};
+          all.forEach(t=>blocks[t.tech].push(t));
 
-<script>
-const state = { trials: [], idx: 0, results: [], participantId: '' };
-const mulberry32 = s => { let a=s>>>0; return()=>(a+=0x6D2B79F5,a^=a>>>15,a=Math.imul(a,a|1),a^=a+Math.imul(a^a>>>7,a|61),((a^a>>>14)>>>0)/4294967296); };
+          const techOrder = blockOrder === 'scroll-first' ? ['Scroll','Radial Clock-Wheel'] : ['Radial Clock-Wheel','Scroll'];
+          const ordered = [];
+          techOrder.forEach(tech=>{
+            const b = blocks[tech];
+            for(let i=b.length-1;i>0;i--){
+              const j=Math.floor(rng()*(i+1));
+              [b[i],b[j]]=[b[j],b[i]];
+            }
+            ordered.push(...b);
+          });
 
-// Generate trials
-document.getElementById('gen').onclick = () => {
-  const reps = parseInt(document.getElementById('reps').value)||1;
-  const seed = document.getElementById('seed').value.trim()==='' ? Math.random()*4294967295 : +document.getElementById('seed').value;
+          state.trials = ordered; 
+          state.idx=0; 
+          state.results=[];
+          state.participantId = document.getElementById('pid').value;
+  
+          const tbody = document.querySelector('#trial-table tbody');
+          tbody.innerHTML=''; 
+          state.trials.forEach((t,i)=>{ 
+            const tr=document.createElement('tr'); 
+            tr.innerHTML=`<td>${i+1}</td><td>${t.tech}</td><td>${t.len}</td><td>${t.pos}</td><td>${t.rep}</td>`; 
+            tbody.appendChild(tr); 
+          });
+
+          document.getElementById('trial-table-container').style.display='block';
+          document.getElementById('start').disabled=false;
+          alert(`Generated ${state.trials.length} trials (Rep 1: 18 · Rep 2: 18)`);
+        };
   const rng = mulberry32(seed);
 
   const conditions = [];
