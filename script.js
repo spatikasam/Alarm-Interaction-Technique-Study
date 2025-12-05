@@ -131,14 +131,28 @@ document.addEventListener('pointermove', (e) => {
   
   const deltaY = e.clientY - startY;
   const rotationDelta = deltaY * 0.5;
-  currentRotation = startRotation + rotationDelta;
+  const smoothRotation = startRotation + rotationDelta;
   
-  // Apply rotation to dial
-  dial.style.transform = `rotate(${currentRotation}deg)`;
+  // Snap to nearest hour (15° increments)
+  const snapAngle = 15;
+  const snappedRotation = Math.round(smoothRotation / snapAngle) * snapAngle;
   
-  // Update alarm list scroll position
-  const pointedHour = getPointedHour();
-  scrollToHour(pointedHour);
+  // Only update if rotation changed (creates discrete steps)
+  if (snappedRotation !== currentRotation) {
+    currentRotation = snappedRotation;
+    
+    // Apply rotation to dial
+    dial.style.transform = `rotate(${currentRotation}deg)`;
+    
+    // Haptic feedback
+    if (navigator.vibrate) {
+      navigator.vibrate(10);
+    }
+    
+    // Update alarm list scroll position
+    const pointedHour = getPointedHour();
+    scrollToHour(pointedHour);
+  }
   
   e.preventDefault();
 });
