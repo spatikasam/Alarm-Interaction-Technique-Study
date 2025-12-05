@@ -132,7 +132,7 @@
     const store = {
       trials: JSON.parse(sessionStorage.getItem('experimentTrials') || '[]'),
       pid: sessionStorage.getItem('participantId') || 'P000',
-      results: JSON.parse(sessionStorage.getItem('experimentResults') || JSON.parse(localStorage.getItem('experimentResults') || '[]')),
+      results: JSON.parse(sessionStorage.getItem('experimentResults') || localStorage.getItem('experimentResults') || '[]'),
       idx: 0,
       trial: null,
       target: null,
