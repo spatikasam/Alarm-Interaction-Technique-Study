@@ -193,10 +193,14 @@
     function buildAlarmList(trial, targetIdx) {
       const list = alarms.slice(0, trial.len);
       
+      console.log('🔨 buildAlarmList:', { len: trial.len, targetIdx, listLen: list.length });
+      
       if (!dom.scroll) {
         console.error('❌ dom.scroll is null or undefined!');
         return;
       }
+      
+      console.log('  📜 dom.scroll element:', dom.scroll);
       
       dom.scroll.innerHTML = '';
       dom.scroll.scrollTop = 0;  // Reset scroll to top
@@ -230,7 +234,7 @@
       });
 
       const rowCount = document.querySelectorAll('.alarm-row').length;
-      console.log('✅ Built alarm list - rows created:', rowCount);
+      console.log('  ✅ Built alarm list - rows created:', rowCount);
 
       if (window.alarmDial) {
         window.alarmDial.refresh();
@@ -277,6 +281,8 @@
     
     // Intro modal handler
     dom.introStart.onclick = () => {
+      console.log('🎬 Begin Experiment button clicked');
+      console.log('   Hiding intro modal and calling renderTrial()');
       dom.introModal.classList.add('hidden');
       renderTrial();
     };
@@ -651,18 +657,10 @@ Technique: ${store.trial.tech}`;
     console.log('  3. Block 3 (18 trials)');
     console.log('═══════════════════════════════════════════════');
     
-    // Ensure intro modal is shown and button handler is set up
+    // Ensure intro modal is shown
     if (dom.introModal) {
       dom.introModal.classList.remove('hidden');
     }
-    if (dom.introStart) {
-      dom.introStart.onclick = () => {
-        dom.introModal.classList.add('hidden');
-        renderTrial();
-      };
-    };
-    console.log('  3. Block 3 (18 trials)');
-    console.log('═══════════════════════════════════════════════');
     
     // Set up post-experiment return button
     const returnBtn = document.getElementById('return-home');
@@ -672,18 +670,9 @@ Technique: ${store.trial.tech}`;
       };
     }
     
-    // Start main experiment immediately
-    console.log('🚀 Starting main experiment...\n');
-    
-    // Show intro modal first
-    dom.introStart.onclick = () => {
-      dom.introModal.classList.add('hidden');
-      renderTrial();
-    };
-
     // ✓ VERIFICATION: 3-block factorial design
     console.log('✓ 3-Block Factorial Design loaded');
-    console.log('✓ Trials:', practiceCount, 'practice (not logged) +', loggedCount, 'logged = ', store.trials.length, 'total');
+    console.log('✓ Trials:', store.trials.length, 'total');
     console.log('✓ Participant:', store.pid);
     console.log('✓ Design: 3 blocks × 18 conditions (2 techniques × 3 lengths × 3 positions)');
     console.log('✓ Schema: ParticipantID, Technique, ListLength, TargetPosition, BlockNo, TrialNo, StartTime, EndTime, Duration_ms, MentalEffort, ErrorCount, TargetTime');
