@@ -173,7 +173,59 @@
     background:#3a3a3c;
     color:#fff;
   }
-</style>
+
+  .modal-overlay {
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background:rgba(0,0,0,0.5);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:1000;
+  }
+  
+  .modal-overlay.show {
+    display:flex;
+  }
+  
+  .modal-content {
+    background:#2c2c2e;
+    border-radius:16px;
+    padding:24px;
+    max-width:340px;
+    margin:20px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.4);
+  }
+  
+  .modal-title {
+    font-size:18px;
+    font-weight:600;
+    color:#fff;
+    margin-bottom:12px;
+  }
+  
+  .modal-message {
+    font-size:14px;
+    color:#8e8e93;
+    line-height:1.5;
+    white-space:pre-line;
+    margin-bottom:20px;
+  }
+  
+  .modal-button {
+    background:var(--blue);
+    color:white;
+    border:none;
+    border-radius:12px;
+    padding:14px;
+    font-size:17px;
+    font-weight:600;
+    cursor:pointer;
+    width:100%;
+  }
 </style>
 </head>
 <body>
@@ -212,6 +264,14 @@
       <button id="load-results">Load latest results</button>
       <button id="download-csv">Download CSV</button>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="customModal">
+  <div class="modal-content">
+    <div class="modal-title">Trial Order Generated</div>
+    <div class="modal-message" id="modalMessage"></div>
+    <button class="modal-button" onclick="document.getElementById('customModal').classList.remove('show')">OK</button>
   </div>
 </div>
 
@@ -290,7 +350,10 @@ document.getElementById('gen').onclick = () => {
   
   document.getElementById('trial-table-container').style.display = 'block';
   document.getElementById('start').disabled = false;
-  alert(`Trial order generated!\n\n🔷 Practice: 4 warmup trials\n   • NOT counted in results\n   • NOT logged to data\n   • Completed first\n\n📊 Main Experiment: 54 logged trials\n   • 3 blocks × 18 conditions\n   • All trials will be saved\n\nReady to start!`);
+  
+  // Show custom modal instead of alert
+  document.getElementById('modalMessage').textContent = `🔷 Practice: 4 warmup trials\n   • NOT logged to data\n\n📊 Main Experiment: 54 logged trials\n   • 3 blocks × 18 conditions\n   • Data will be logged\n\nReady to start!`;
+  document.getElementById('customModal').classList.add('show');
 };
 
 // Start → redirect to practice.html with trial data
