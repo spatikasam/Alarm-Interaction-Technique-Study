@@ -65,7 +65,7 @@
 
     <!-- Effort Rating Modal -->
     <div id="effort-modal" class="trial-modal hidden">
-      <div class="trial-modal-content" style="position: relative; z-index: 10000;">
+      <div class="trial-modal-content">
         <h2>Mental effort</h2>
         <p>How mentally demanding was this task?</p>
         <p style="font-size: 13px; color: #8e8e93; margin-top: -8px;">(0 = very low, 100 = very high)</p>
@@ -73,7 +73,7 @@
         <div class="slider-labels">
           <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
         </div>
-        <button id="effort-submit" class="pill-btn" style="margin-top: 24px; position: relative; z-index: 10001; pointer-events: auto;">Submit rating</button>
+        <button id="effort-submit" class="pill-btn" onclick="console.log('✅ ONCLICK FIRED'); return false;">Submit rating</button>
       </div>
     </div>
     
@@ -568,15 +568,16 @@ Technique: ${store.trial.tech}`;
       console.log('🔘 Submit button clicked', e);
       console.log('   Button:', e.target);
       console.log('   Disabled?', dom.submit.disabled);
-      console.log('   Effort modal hidden?', dom.effort.classList.contains('hidden'));
+      console.log('   Effort modal visible?', !dom.effort.classList.contains('hidden'));
+      console.log('   Store.pending:', store.pending);
       
       // Prevent default and stop propagation
       e.preventDefault();
       e.stopPropagation();
       
-      // If in effort mode, submit effort rating
-      if (!dom.effort.classList.contains('hidden')) {
-        console.log('   📊 Submitting effort rating:', dom.slider.value);
+      // Check if effort modal is visible
+      if (dom.effort && !dom.effort.classList.contains('hidden')) {
+        console.log('   📊 Effort modal is visible - submitting rating:', dom.slider.value);
         
         if (!store.pending) {
           console.error('   ❌ No pending result to submit!');
@@ -585,6 +586,7 @@ Technique: ${store.trial.tech}`;
 
         // Save effort rating
         store.pending.mentalEffort = parseInt(dom.slider.value, 10);
+        console.log('   ✅ Saved mental effort:', store.pending.mentalEffort);
         
         // Log the result
         store.results.push(store.pending);
@@ -592,18 +594,21 @@ Technique: ${store.trial.tech}`;
         sessionStorage.setItem('experimentResults', s);
         localStorage.setItem('experimentResults', s);
 
-        console.log('   ✅ Result saved:', store.pending);
+        console.log('   ✅ Result saved to storage:', store.pending);
         
         // Post to sheet
         post(store.pending);
 
         // Hide effort modal
         dom.effort.classList.add('hidden');
+        console.log('   ✅ Effort modal hidden');
         
         // 3s inter-trial break
+        console.log('   ⏳ Starting 3s inter-trial break...');
         await showBreak(3, false);
         
         store.idx += 1;
+        console.log('   ✅ Trial index advanced to:', store.idx);
         
         // Check for block break (after trials 18 and 36)
         if ((store.idx === 18 || store.idx === 36) && store.idx < store.trials.length) {
@@ -615,13 +620,29 @@ Technique: ${store.trial.tech}`;
         dom.slider.value = 50;
         
         // Advance to next trial
+        console.log('   ⏭️ Rendering next trial...');
         renderTrial();
+      } else {
+        console.log('   ❌ Effort modal is hidden or not found!');
       }
     }
     
-    // Attach event listener
-    dom.submit.addEventListener('click', handleSubmitClick);
-    console.log('✅ Submit button event listener attached to:', dom.submit);
+    // Attach event listener with better error handling
+    if (dom.submit) {
+      // Try addEventListener approach
+      dom.submit.addEventListener('click', handleSubmitClick, false);
+      console.log('✅ Submit button event listener attached via addEventListener');
+      
+      // Also set onclick as backup
+      dom.submit.onclick = (e) => {
+        console.log('💥 ONCLICK HANDLER FIRING');
+        handleSubmitClick(e || window.event);
+        return false;
+      };
+      console.log('✅ Submit button onclick handler also attached as backup');
+    } else {
+      console.error('❌ Submit button element not found!');
+    }
 
     function finalizeTrial() {
       stopTimer();
