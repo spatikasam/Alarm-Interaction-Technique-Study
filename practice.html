@@ -357,10 +357,10 @@ Technique: ${store.trial.tech}`;
           }
           finalizeTrial();
         }, 1000);
-      } else if (clickH !== store.target.h && wasOn) {
-        // Error: turning OFF the wrong alarm
+      } else if (clickH !== store.target.h) {
+        // Error: toggling any wrong alarm (whether turning ON or OFF)
         store.errors++;
-        console.log(`❌ Wrong alarm! Errors: ${store.errors}`);
+        console.log(`❌ Wrong alarm toggled! Errors: ${store.errors}`);
         
         // Visual feedback for wrong alarm
         if (row) {
