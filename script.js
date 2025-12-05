@@ -184,12 +184,10 @@ document.addEventListener('pointerup', (e) => {
     isDragging = false;
     dialContainer.releasePointerCapture(e.pointerId);
     
-    // Allow scroll events to settle before allowing manual scroll detection
-    setTimeout(() => {
-      isDialControlled = false;
-    }, 250);
+    // Immediately allow outside interactions to close dial
+    isDialControlled = false;
     
-    // Close drawer after delay
+    // Close drawer after delay if not interacting
     closeTimeout = setTimeout(() => {
       if (isDrawerOpen && !isDragging) {
         dialContainer.classList.remove('open');
@@ -205,9 +203,10 @@ document.addEventListener('pointerup', (e) => {
 // Close dial when user manually scrolls the alarm list
 let scrollTimeout;
 alarmsScroll.addEventListener('scroll', () => {
-  clearTimeout(scrollTimeout);
-  scrollTimeout = setTimeout(() => {
-    if (isDrawerOpen && !isDialControlled && !isDragging) {
+  // Only close if user is manually scrolling (not dial-controlled)
+  if (isDrawerOpen && !isDialControlled && !isDragging) {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
       dialContainer.classList.remove('open');
       isDrawerOpen = false;
       if (closeTimeout) {
@@ -216,8 +215,8 @@ alarmsScroll.addEventListener('scroll', () => {
       }
       currentRotation = initialRotation;
       dial.style.transform = `rotate(${currentRotation}deg)`;
-    }
-  }, 50);
+    }, 50);
+  }
 });
 
 // Also close dial immediately when user touches the alarm list area
@@ -236,15 +235,33 @@ alarmsScroll.addEventListener('pointerdown', (e) => {
 
 // Close dial when tapping outside
 document.addEventListener('pointerdown', (e) => {
-  if (isDrawerOpen && !dialContainer.contains(e.target) && !isDragging) {
-    dialContainer.classList.remove('open');
-    isDrawerOpen = false;
-    if (closeTimeout) {
-      clearTimeout(closeTimeout);
-      closeTimeout = null;
+  if (isDrawerOpen && !isDragging) {
+    // Check if click is actually on the dial (not just the container)
+    const dialElement = dial;
+    const dialRect = dialElement.getBoundingClientRect();
+    const clickX = e.clientX;
+    const clickY = e.clientY;
+    
+    // Check if click is within dial circle bounds
+    const dialCenterX = dialRect.left + dialRect.width / 2;
+    const dialCenterY = dialRect.top + dialRect.height / 2;
+    const distance = Math.sqrt(
+      Math.pow(clickX - dialCenterX, 2) + 
+      Math.pow(clickY - dialCenterY, 2)
+    );
+    const dialRadius = dialRect.width / 2;
+    
+    // Close if click is outside the dial circle
+    if (distance > dialRadius) {
+      dialContainer.classList.remove('open');
+      isDrawerOpen = false;
+      if (closeTimeout) {
+        clearTimeout(closeTimeout);
+        closeTimeout = null;
+      }
+      currentRotation = initialRotation;
+      dial.style.transform = `rotate(${currentRotation}deg)`;
     }
-    currentRotation = initialRotation;
-    dial.style.transform = `rotate(${currentRotation}deg)`;
   }
 });
 
