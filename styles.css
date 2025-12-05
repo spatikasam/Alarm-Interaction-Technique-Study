@@ -197,7 +197,7 @@ body {
 }
 
 .dial-container.open .dial::before {
-  background: conic-gradient(from 90deg, transparent 0deg, transparent 90deg, rgba(0, 0, 0, 0.6) 90deg, rgba(0, 0, 0, 0.6) 270deg, transparent 270deg, transparent 360deg);
+  background: conic-gradient(from 90deg, rgba(255, 255, 255, 0.12) 0deg, rgba(255, 255, 255, 0.12) 90deg, rgba(0, 0, 0, 0.35) 90deg, rgba(0, 0, 0, 0.35) 270deg, rgba(255, 255, 255, 0.12) 270deg, rgba(255, 255, 255, 0.12) 360deg);
 }
 
 /* AM label - in the middle of AM half (right side) */
