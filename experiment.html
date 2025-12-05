@@ -63,15 +63,17 @@
       </div>
     </div>
 
+    <!-- Effort Rating Modal -->
     <div id="effort-modal" class="trial-modal hidden">
-      <div class="trial-modal-content">
+      <div class="trial-modal-content" style="position: relative; z-index: 10000;">
         <h2>Mental effort</h2>
-        <p>How mentally demanding was this task? (0 = very low, 100 = very high)</p>
-        <input id="effort-slider" type="range" min="0" max="100" value="50" />
+        <p>How mentally demanding was this task?</p>
+        <p style="font-size: 13px; color: #8e8e93; margin-top: -8px;">(0 = very low, 100 = very high)</p>
+        <input id="effort-slider" type="range" min="0" max="100" value="50" style="margin: 20px 0 8px 0;" />
         <div class="slider-labels">
           <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
         </div>
-        <button id="effort-submit" class="pill-btn">Submit rating</button>
+        <button id="effort-submit" class="pill-btn" style="margin-top: 24px; position: relative; z-index: 10001; pointer-events: auto;">Submit rating</button>
       </div>
     </div>
     
@@ -553,12 +555,19 @@ Technique: ${store.trial.tech}`;
       }
     });
 
-    dom.submit.onclick = async () => {
-      console.log('🔘 Submit button clicked');
+    // Submit button handler - using addEventListener for reliability
+    async function handleSubmitClick(e) {
+      console.log('🔘 Submit button clicked', e);
+      console.log('   Button:', e.target);
+      console.log('   Disabled?', dom.submit.disabled);
       console.log('   Effort modal hidden?', dom.effort.classList.contains('hidden'));
       
-      // If in effort mode, submit effort and show next button
-      if (dom.effort.classList.contains('hidden') === false) {
+      // Prevent default and stop propagation
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // If in effort mode, submit effort rating
+      if (!dom.effort.classList.contains('hidden')) {
         console.log('   📊 Submitting effort rating:', dom.slider.value);
         
         if (!store.pending) {
@@ -566,6 +575,7 @@ Technique: ${store.trial.tech}`;
           return;
         }
 
+        // Save effort rating
         store.pending.mentalEffort = parseInt(dom.slider.value, 10);
         
         // Log the result
@@ -579,35 +589,31 @@ Technique: ${store.trial.tech}`;
         // Post to sheet
         post(store.pending);
 
-        // Hide effort modal and prepare button for next trial
+        // Hide effort modal
         dom.effort.classList.add('hidden');
-        dom.submit.textContent = 'Next trial';
-        dom.submit.disabled = false;
-        return;
+        
+        // 3s inter-trial break
+        await showBreak(3, false);
+        
+        store.idx += 1;
+        
+        // Check for block break (after trials 18 and 36)
+        if ((store.idx === 18 || store.idx === 36) && store.idx < store.trials.length) {
+          console.log(`🎯 Block complete! Taking 60s break before Block ${store.trials[store.idx].blockNo}`);
+          await showBreak(60, true); // 1-minute block break
+        }
+        
+        // Reset slider for next trial
+        dom.slider.value = 50;
+        
+        // Advance to next trial
+        renderTrial();
       }
-      
-      // If we reach here, it's the "Next trial" button
-      console.log('   ⏭️ Advancing to next trial');
-      dom.submit.disabled = true;
-      
-      // 3s inter-trial break
-      await showBreak(3, false);
-      
-      store.idx += 1;
-      
-      // Check for block break (after trials 18 and 36)
-      if ((store.idx === 18 || store.idx === 36) && store.idx < store.trials.length) {
-        console.log(`🎯 Block complete! Taking 60s break before Block ${store.trials[store.idx].blockNo}`);
-        await showBreak(60, true); // 1-minute block break
-      }
-      
-      // Reset button for next trial
-      dom.submit.textContent = 'Submit rating';
-      dom.submit.disabled = false;
-      
-      // Advance to next trial
-      renderTrial();
-    };
+    }
+    
+    // Attach event listener
+    dom.submit.addEventListener('click', handleSubmitClick);
+    console.log('✅ Submit button event listener attached to:', dom.submit);
 
     function finalizeTrial() {
       stopTimer();
