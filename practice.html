@@ -103,7 +103,8 @@
       active: false,
       startTime: 0,
       timerInterval: null,
-      breakInterval: null
+      breakInterval: null,
+      timeoutHandle: null
     };
 
     const alarms = (() => {
@@ -203,12 +204,28 @@
     };
 
     function startTimer() {
+      const TIMEOUT_MS = 30000; // 30 seconds
       dom.timerDisplay.classList.remove('hidden');
       let elapsed = 0;
+      
       store.timerInterval = setInterval(() => {
         elapsed = Math.floor((Date.now() - store.startTime) / 1000);
         dom.timerDisplay.textContent = `${elapsed}s`;
+        
+        // Add warning color at 25s
+        if (elapsed >= 25 && elapsed < 30) {
+          dom.timerDisplay.classList.add('warning');
+        }
+        if (elapsed >= 30) {
+          dom.timerDisplay.classList.add('timeout');
+        }
       }, 100);
+      
+      // Hard timeout at 30s
+      store.timeoutHandle = setTimeout(() => {
+        console.log('⏱️ Trial timed out');
+        finalizeTrial();
+      }, TIMEOUT_MS);
     }
 
     function stopTimer() {
@@ -216,7 +233,12 @@
         clearInterval(store.timerInterval);
         store.timerInterval = null;
       }
+      if (store.timeoutHandle) {
+        clearTimeout(store.timeoutHandle);
+        store.timeoutHandle = null;
+      }
       dom.timerDisplay.classList.add('hidden');
+      dom.timerDisplay.classList.remove('warning', 'timeout');
     }
 
     document.addEventListener('click', (e) => {
@@ -269,8 +291,22 @@
       stopTimer();
       store.active = false;
       dom.modal.classList.add('hidden');
-      dom.effort.classList.remove('hidden');
-      dom.submit.disabled = false;
+      
+      // Skip effort rating for practice - go directly to next trial
+      console.log(`Practice ${store.idx + 1} complete`);
+      
+      setTimeout(async () => {
+        store.idx += 1;
+        
+        if (store.idx < practiceTrials.length) {
+          await showBreak(2);
+          renderTrial();
+        } else {
+          // Practice complete, go to main experiment
+          console.log('✅ Practice complete! Moving to main experiment...');
+          window.location.href = 'experiment.html';
+        }
+      }, 500);
     }
 
     // Initialize
