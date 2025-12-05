@@ -228,10 +228,8 @@
 
       buildAlarmList(store.trial, tIdx);
 
-      // Reset scroll position for scroll-based trials
-      if (store.trial.tech === 'Scroll') {
-        dom.scroll.scrollTop = 0;
-      }
+      // Always reset scroll position to top
+      dom.scroll.scrollTop = 0;
 
       const useDial = store.trial.tech === 'Radial Clock-Wheel';
       dom.dial.style.display = useDial ? 'block' : 'none';
