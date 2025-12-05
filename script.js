@@ -83,6 +83,7 @@ dialContainer.addEventListener('pointerdown', (e) => {
   startRotation = currentRotation;
   dialContainer.setPointerCapture(e.pointerId);
   e.preventDefault();
+  e.stopPropagation();  // Prevent document listener from closing dial
   
   // Open drawer on drag start
   if (!isDrawerOpen) {
