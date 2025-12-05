@@ -238,14 +238,14 @@ document.getElementById('gen').onclick = () => {
   alert(`Generated ${state.trials.length} trials`);
 };
 
-// Start → redirect to index.html with trial data
+// Start → redirect to experiment.html with trial data
 document.getElementById('start').onclick = () => {
   // Store trial configuration in sessionStorage
   sessionStorage.setItem('experimentTrials', JSON.stringify(state.trials));
   sessionStorage.setItem('participantId', state.participantId);
   
-  // Redirect to index.html
-  window.location.href = 'index.html';
+  // Redirect to experiment.html
+  window.location.href = 'experiment.html';
 };
 
 // Results display
