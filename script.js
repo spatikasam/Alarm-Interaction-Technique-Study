@@ -45,7 +45,8 @@ for (let i = 0; i < 24; i++) {
     displayHour = i - 12;  // 1-11 for PM
   }
   num.textContent = displayHour;
-  num.style.transform = `rotate(${i * 15}deg)`;
+  // Rotate to position, then counter-rotate to keep text upright
+  num.style.transform = `rotate(${i * 15}deg) translate(0, -136px) rotate(-${i * 15}deg)`;
   dial.appendChild(num);
 }
 

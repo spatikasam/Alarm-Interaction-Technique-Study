@@ -341,9 +341,9 @@ body {
   align-items: center;
   justify-content: center;
   left: 50%;
-  top: 24px;
+  top: 50%;
   margin-left: -14px;
-  transform-origin: 50% 136px;
+  margin-top: -14px;
   z-index: 2;
   opacity: 0;
   transition: opacity 0.3s ease-out 0.1s;
