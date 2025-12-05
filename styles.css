@@ -296,36 +296,38 @@ body {
   gap: 6px;
 }
 
-/* ticks - longer for hours */
-/* FIXED: Dial tick opacity already present - confirmed */
+/* ticks - clean minimal style */
 .dial-tick {
   position: absolute;
-  width: 3px;
-  height: 20px;
-  background: #666;
+  width: 2px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.25);
   left: 50%;
-  top: 0;
-  margin-left: -1.5px;
-  transform-origin: 50% 160px; /* center of 320px dial */
+  top: 8px;
+  margin-left: -1px;
+  transform-origin: 50% 152px; /* center of 320px dial */
   opacity: 0;
   transition: opacity 0.3s ease-out 0.1s;
+  border-radius: 1px;
 }
 
-/* hour numbers */
+/* hour numbers - clean typography */
 .dial-number {
   position: absolute;
-  color: #aaa;
-  font-size: 16px;
-  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 18px;
+  font-weight: 500;
   left: 50%;
-  top: 20px;
-  transform-origin: 50% 150px; /* center-aligned to dial radius */
-  width: 28px;
+  top: 28px;
+  transform-origin: 50% 142px; /* center-aligned to dial radius */
+  width: 30px;
   text-align: center;
-  margin-left: -14px;
+  margin-left: -15px;
   z-index: 2;
-  opacity: 0; /* FIXED: Start hidden, show on dial open */
+  opacity: 0;
   transition: opacity 0.3s ease-out 0.1s;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
 }
 
 /* Triangular pointer snug to dial edge, pointing into the dial (rightward tip) */
@@ -336,7 +338,7 @@ body {
   border-top: 12px solid transparent;
   border-bottom: 12px solid transparent;
   border-left: 16px solid #ff9f0a; /* point right */
-  right: -6px; /* tuck next to dial edge */
+  left: 154px; /* Position at right edge of visible dial quarter (160px dial center - 6px to snug) */
   top: 50%;
   transform: translateY(-50%);
   z-index: 15;

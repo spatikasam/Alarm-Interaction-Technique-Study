@@ -560,7 +560,7 @@
     // Hide main trial UI initially (show intro screen only)
     document.getElementById('header-subtitle').classList.add('hidden');
     document.getElementById('alarmsScroll').classList.add('hidden');
-    document.querySelector('.dial-container').classList.add('hidden');
+    dom.dial.style.display = 'none';
     
     // Set up intro screen button
     const beginBtn = document.getElementById('begin-practice');
@@ -571,7 +571,6 @@
         // Show main UI elements
         document.getElementById('header-subtitle').classList.remove('hidden');
         document.getElementById('alarmsScroll').classList.remove('hidden');
-        document.querySelector('.dial-container').classList.remove('hidden');
         renderTrial();
       };
     }
