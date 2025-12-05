@@ -83,6 +83,7 @@ body {
   right: 0;
   overflow-y: auto;
   padding-bottom: 40px;
+  z-index: 5;
 }
 
 .alarm-row {
@@ -157,6 +158,8 @@ body {
   z-index: 10;
   transition: left 0.25s ease-out;
   cursor: pointer;
+  pointer-events: auto;
+  touch-action: none;
 }
 
 /* when drawer is fully open, we add a class via JS */
