@@ -185,23 +185,25 @@ body {
   cursor: pointer;
   transition: background-color 0.3s ease;
   flex-shrink: 0;
+  display: block;
 }
 
 .alarm-toggle.on {
-  background: #34c759;
+  background-color: #34c759;
 }
 
 .alarm-toggle.off {
-  background: #39393d;
+  background-color: #39393d;
 }
 
 .alarm-toggle::after {
   content: '';
+  display: block;
   position: absolute;
   width: 27px;
   height: 27px;
   border-radius: 50%;
-  background: #fff;
+  background-color: #fff;
   top: 2px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: left 0.3s ease;
