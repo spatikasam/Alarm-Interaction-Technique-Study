@@ -331,21 +331,41 @@ Technique: ${store.trial.tech}`;
       
       if (clickH === store.target.h && wasOff) {
         console.log('✅ Correct alarm turned off! Moving to next trial...');
-        finalizeTrial();
+        
+        // Stop timer and deactivate immediately
+        stopTimer();
+        store.active = false;
+        
+        // Visual feedback for correct alarm
+        row.style.backgroundColor = '#34c759';
+        row.style.transition = 'background-color 0.3s ease';
+        
+        // Vibrate success pattern if supported
+        if (navigator.vibrate) {
+          navigator.vibrate([50, 50, 50]);
+        }
+        
+        setTimeout(() => {
+          row.style.backgroundColor = '';
+          finalizeTrial();
+        }, 600);
       } else if (clickH !== store.target.h && wasOff) {
         store.errors++;
         console.log(`❌ Wrong alarm! Errors: ${store.errors}`);
         
-        // Visual feedback for wrong alarm
+        // Visual feedback for wrong alarm - more noticeable
         row.style.backgroundColor = '#ff3b30';
-        row.style.transition = 'background-color 0.3s ease';
+        row.style.transition = 'background-color 0.2s ease';
+        row.style.transform = 'scale(0.98)';
+        
         setTimeout(() => {
           row.style.backgroundColor = '';
-        }, 800);
+          row.style.transform = '';
+        }, 600);
         
-        // Vibrate if supported
+        // Vibrate error pattern if supported
         if (navigator.vibrate) {
-          navigator.vibrate(200);
+          navigator.vibrate([100, 50, 100]);
         }
       }
     });
@@ -383,7 +403,10 @@ Technique: ${store.trial.tech}`;
     };
 
     function finalizeTrial() {
-      stopTimer();
+      // Timer already stopped in success case, but stop again for timeout case
+      if (store.timerInterval || store.timeoutHandle) {
+        stopTimer();
+      }
       store.active = false;
       dom.modal.classList.add('hidden');
       
