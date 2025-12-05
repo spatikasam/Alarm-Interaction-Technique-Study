@@ -394,6 +394,7 @@ body {
   justify-content: center;
   z-index: 1000;
   padding: 20px;
+  padding-top: 0;
 }
 
 .trial-modal-content {
@@ -460,8 +461,8 @@ body {
 }
 
 .target-label {
-  font-size: 10px;
-  color: #8e8e93;
+  font-size: 9px;
+  color: rgba(142, 142, 147, 0.6);
   margin-bottom: 2px;
 }
 
