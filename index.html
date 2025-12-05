@@ -285,6 +285,8 @@ document.getElementById('gen').onclick = () => {
   const conditions = [];
   const techniques = ['Scroll', 'Radial Clock-Wheel'];
   const lengths = [10, 20, 30];
+  // NOTE: Positions refer to target location in alarm list (not screen position)
+  // Top = first 1/3 (index 0), Middle = middle 1/3 (center), Bottom = last 1/3 (last index)
   const positions = ['Top', 'Middle', 'Bottom'];
   
   techniques.forEach(tech => 

@@ -244,6 +244,10 @@
     }
 
     // ============ UTILS ============
+    // NOTE: Target positions refer to list portions, NOT literal top/bottom of screen
+    // "Top"    = first 1/3 of the list (index 0)
+    // "Middle" = middle 1/3 of the list (center index)
+    // "Bottom" = last 1/3 of the list (last index)
     const fmt = {
       time: (a) => {
         const h12 = a.h === 0 ? 12 : a.h > 12 ? a.h - 12 : a.h;
@@ -251,6 +255,10 @@
         const minStr = (a.min || a.m || 0).toString().padStart(2, '0');
         return { time: `${h12}:${minStr}`, ap, full: `${h12}:${minStr} ${ap}`, h: a.h };
       },
+      // Calculates target alarm index based on position in list
+      // Top: index 0 (first alarm in list)
+      // Bottom: index len-1 (last alarm in list)  
+      // Middle: index len/2 (center of list)
       target: (pos, len) => pos === 'Top' ? 0 : pos === 'Bottom' ? Math.max(len - 1, 0) : Math.floor(len / 2)
     };
 
