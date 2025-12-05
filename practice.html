@@ -75,6 +75,11 @@
       </div>
     </div>
     
+    <div class="target-reminder hidden" id="target-reminder" style="position: fixed; left: 20px; top: 90px; background: rgba(0,0,0,0.85); padding: 8px 12px; border-radius: 8px; font-size: 13px; color: #fff; z-index: 100; border: 1px solid #333;">
+      <div style="font-size: 10px; color: #8e8e93; margin-bottom: 2px;">TARGET</div>
+      <div id="target-time-reminder" style="font-weight: 600;">--</div>
+    </div>
+    
     <div class="timer-display hidden" id="timer-display">--</div>
     
     <div class="break-overlay hidden" id="break-overlay">
@@ -137,7 +142,9 @@
       submit: document.getElementById('effort-submit'),
       timerDisplay: document.getElementById('timer-display'),
       breakOverlay: document.getElementById('break-overlay'),
-      breakCountdown: document.getElementById('break-countdown')
+      breakCountdown: document.getElementById('break-countdown'),
+      targetReminder: document.getElementById('target-reminder'),
+      targetTimeReminder: document.getElementById('target-time-reminder')
     };
 
     function buildAlarmList(trial, targetIdx) {
@@ -198,6 +205,18 @@
       dom.dial.style.display = useDial ? 'block' : 'none';
       if (window.alarmDial) {
         window.alarmDial.setActive(useDial);
+        // Open dial fully for Radial Clock-Wheel trials
+        if (useDial) {
+          const dialContainer = document.querySelector('.dial-container');
+          if (dialContainer) {
+            dialContainer.classList.add('open');
+          }
+        } else {
+          const dialContainer = document.querySelector('.dial-container');
+          if (dialContainer) {
+            dialContainer.classList.remove('open');
+          }
+        }
       }
 
       const t = fmt.time(store.target);
@@ -218,6 +237,12 @@ Technique: ${store.trial.tech}`;
       dom.modal.classList.add('hidden');
       store.active = true;
       store.startTime = Date.now();
+      
+      // Show target reminder
+      const t = fmt.time(store.target);
+      dom.targetTimeReminder.textContent = t.full;
+      dom.targetReminder.classList.remove('hidden');
+      
       startTimer();
     };
 
@@ -265,11 +290,14 @@ Technique: ${store.trial.tech}`;
       if (!row) return;
 
       const clickH = +row.dataset.h;
+      console.log(`Clicked alarm at ${clickH}:00, target is ${store.target.h}:00`);
+      
       if (clickH === store.target.h) {
+        console.log('✅ Correct alarm! Moving to next trial...');
         finalizeTrial();
       } else {
         store.errors++;
-        console.log('Wrong alarm! Errors:', store.errors);
+        console.log(`❌ Wrong alarm! Errors: ${store.errors}`);
       }
     });
 
@@ -309,6 +337,7 @@ Technique: ${store.trial.tech}`;
       stopTimer();
       store.active = false;
       dom.modal.classList.add('hidden');
+      dom.targetReminder.classList.add('hidden');
       
       // Skip effort rating for practice - go directly to next trial
       console.log(`Practice ${store.idx + 1} complete`);
