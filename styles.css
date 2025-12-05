@@ -245,7 +245,7 @@ body {
   width: 320px;
   height: 320px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(28, 28, 30, 0.7), rgba(44, 44, 46, 0.7));
+  background: linear-gradient(135deg, rgba(28, 28, 30, 0.4), rgba(44, 44, 46, 0.4));
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   box-shadow: 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
@@ -313,15 +313,16 @@ body {
 /* hour tick marks */
 .dial-tick {
   position: absolute;
-  width: 1.5px;
-  height: 10px;
-  background: rgba(255, 255, 255, 0.3);
-  left: calc(50% - 0.75px);
-  top: 10px;
-  transform-origin: center 150px;
+  width: 2px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.4);
+  left: 50%;
+  top: 8px;
+  margin-left: -1px;
+  transform-origin: 50% 152px;
   opacity: 0;
   transition: opacity 0.3s ease-out 0.1s;
-  border-radius: 2px;
+  border-radius: 1px;
 }
 
 .dial-container.open .dial-tick {
@@ -331,22 +332,23 @@ body {
 /* hour numbers - clean typography */
 .dial-number {
   position: absolute;
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 15px;
-  font-weight: 500;
-  width: 24px;
-  height: 24px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  font-weight: 600;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  left: 148px;
-  top: 18px;
-  transform-origin: 12px 160px;
+  left: 50%;
+  top: 24px;
+  margin-left: -14px;
+  transform-origin: 50% 136px;
   z-index: 2;
   opacity: 0;
   transition: opacity 0.3s ease-out 0.1s;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0;
+  letter-spacing: -0.5px;
 }
 
 .dial-container.open .dial-number {
