@@ -110,6 +110,28 @@ document.addEventListener('pointerup', (e) => {
 // Alarm list starts at top, dial should reflect what's centered
 // No automatic scroll on page load
 
+// Close dial when scrolling alarm list
+alarmsScroll.addEventListener('scroll', () => {
+  if (isDrawerOpen) {
+    dialContainer.classList.remove('open');
+    isDrawerOpen = false;
+    // Reset dial rotation to initial position
+    currentRotation = -75;
+    dial.style.transform = `rotate(${currentRotation}deg)`;
+  }
+});
+
+// Close dial when tapping outside dial boundaries
+document.addEventListener('pointerdown', (e) => {
+  if (isDrawerOpen && !dialContainer.contains(e.target)) {
+    dialContainer.classList.remove('open');
+    isDrawerOpen = false;
+    // Reset dial rotation to initial position
+    currentRotation = -75;
+    dial.style.transform = `rotate(${currentRotation}deg)`;
+  }
+});
+
 // Toggle switches on click
 document.querySelectorAll('.switch').forEach(switchEl => {
   switchEl.addEventListener('click', (e) => {

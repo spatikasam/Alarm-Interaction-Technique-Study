@@ -263,7 +263,7 @@ body {
   width: 28px;
   height: 18px;
   background: #ffcc00;
-  clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
+  clip-path: polygon(0% 50%, 90% 8%, 100% 50%, 90% 92%);
   left: 159px;        /* touches dial edge (160px radius - 1px overlap) */
   top: 50%;
   transform: translateY(-50%);
