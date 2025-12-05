@@ -44,7 +44,7 @@ let startRotation = 0;
 let currentRotation = 0;  // Start at 0° so hour 6 (6 AM at 90°) is at pointer
 let isDrawerOpen = false;
 let closeTimeout = null;
-let isDialScrolling = false;  // Track if dial is controlling the scroll
+let isDialControlled = false;  // True when dial is being actively manipulated
 
 // Apply initial dial rotation
 dial.style.transform = `rotate(${currentRotation}deg)`;
@@ -67,8 +67,6 @@ function getPointedHour() {
   // Hour 0 is at 0°, hour 6 at 90°, hour 12 at 180°, hour 18 at 270°
   let hourIndex = Math.round(pointedAngle / 15) % 24;
   
-  console.log(`Dial rotation: ${currentRotation.toFixed(1)}°, Pointed angle: ${pointedAngle.toFixed(1)}°, Hour: ${hourIndex}`);
-  
   return hourIndex;
 }
 
@@ -86,11 +84,12 @@ function scrollToHour(hourIndex) {
 // Start drag when hovering over the dial container (peeking portion)
 dialContainer.addEventListener('pointerdown', (e) => {
   isDragging = true;
+  isDialControlled = true;
   startY = e.clientY;
   startRotation = currentRotation;
   dialContainer.setPointerCapture(e.pointerId);
   e.preventDefault();
-  e.stopPropagation();  // Prevent document listener from closing dial
+  e.stopPropagation();
   
   // Clear any pending close timeout
   if (closeTimeout) {
@@ -98,7 +97,7 @@ dialContainer.addEventListener('pointerdown', (e) => {
     closeTimeout = null;
   }
   
-  // Open drawer on drag start
+  // Open drawer
   if (!isDrawerOpen) {
     dialContainer.classList.add('open');
     isDrawerOpen = true;
@@ -110,17 +109,15 @@ document.addEventListener('pointermove', (e) => {
   
   const deltaY = e.clientY - startY;
   const rotationDelta = deltaY * 0.5;
-  currentRotation = startRotation + rotationDelta;  // Finger movement directly controls dial
+  currentRotation = startRotation + rotationDelta;
   
   // Apply rotation to dial
   dial.style.transform = `rotate(${currentRotation}deg)`;
   
-  // Update alarm list scroll to reflect dial position
-  isDialScrolling = true;  // Flag that dial is controlling the scroll
+  // Update alarm list scroll position
   const pointedHour = getPointedHour();
   scrollToHour(pointedHour);
   
-  // Prevent default scrolling behavior
   e.preventDefault();
 });
 
@@ -129,52 +126,51 @@ document.addEventListener('pointerup', (e) => {
     isDragging = false;
     dialContainer.releasePointerCapture(e.pointerId);
     
-    // Reset the dial scrolling flag after a short delay to allow scroll event to complete
+    // Allow scroll events to settle before allowing manual scroll detection
     setTimeout(() => {
-      isDialScrolling = false;
-    }, 100);
+      isDialControlled = false;
+    }, 250);
     
-    // Close drawer after a delay only if still open
+    // Close drawer after delay
     closeTimeout = setTimeout(() => {
-      if (isDrawerOpen) {
+      if (isDrawerOpen && !isDragging) {
         dialContainer.classList.remove('open');
         isDrawerOpen = false;
       }
-    }, 800);
+    }, 1200);
   }
 });
 
 // Alarm list starts at top, dial should reflect what's centered
 // No automatic scroll on page load
 
-// Close dial when scrolling alarm list (but not when dial is controlling the scroll)
+// Close dial when user manually scrolls the alarm list
+let scrollTimeout;
 alarmsScroll.addEventListener('scroll', () => {
-  // Only close if user is manually scrolling (not dial-controlled)
-  if (isDrawerOpen && !isDialScrolling && !isDragging) {
-    dialContainer.classList.remove('open');
-    isDrawerOpen = false;
-    // Clear any pending close timeout
-    if (closeTimeout) {
-      clearTimeout(closeTimeout);
-      closeTimeout = null;
+  clearTimeout(scrollTimeout);
+  scrollTimeout = setTimeout(() => {
+    if (isDrawerOpen && !isDialControlled && !isDragging) {
+      dialContainer.classList.remove('open');
+      isDrawerOpen = false;
+      if (closeTimeout) {
+        clearTimeout(closeTimeout);
+        closeTimeout = null;
+      }
+      currentRotation = 0;
+      dial.style.transform = `rotate(${currentRotation}deg)`;
     }
-    // Reset dial rotation to initial position (6 AM)
-    currentRotation = 0;
-    dial.style.transform = `rotate(${currentRotation}deg)`;
-  }
+  }, 100);
 });
 
-// Close dial when tapping outside dial boundaries
+// Close dial when tapping outside
 document.addEventListener('pointerdown', (e) => {
   if (isDrawerOpen && !dialContainer.contains(e.target) && !isDragging) {
     dialContainer.classList.remove('open');
     isDrawerOpen = false;
-    // Clear any pending close timeout
     if (closeTimeout) {
       clearTimeout(closeTimeout);
       closeTimeout = null;
     }
-    // Reset dial rotation to initial position (6 AM)
     currentRotation = 0;
     dial.style.transform = `rotate(${currentRotation}deg)`;
   }
