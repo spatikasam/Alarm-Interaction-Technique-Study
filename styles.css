@@ -310,16 +310,15 @@ body {
   letter-spacing: 1px;
 }
 
-/* ticks - clean minimal style */
+/* hour tick marks */
 .dial-tick {
   position: absolute;
   width: 1.5px;
   height: 10px;
   background: rgba(255, 255, 255, 0.3);
-  left: 50%;
+  left: calc(50% - 0.75px);
   top: 10px;
-  margin-left: -0.75px;
-  transform-origin: 50% 150px;
+  transform-origin: center 150px;
   opacity: 0;
   transition: opacity 0.3s ease-out 0.1s;
   border-radius: 2px;
@@ -335,12 +334,13 @@ body {
   color: rgba(255, 255, 255, 0.85);
   font-size: 15px;
   font-weight: 500;
-  left: 50%;
-  top: 22px;
-  transform-origin: 50% 128px;
   width: 30px;
+  height: 20px;
+  left: calc(50% - 15px);
+  top: 22px;
+  transform-origin: center 128px;
   text-align: center;
-  margin-left: -15px;
+  line-height: 20px;
   z-index: 2;
   opacity: 0;
   transition: opacity 0.3s ease-out 0.1s;
