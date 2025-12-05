@@ -315,14 +315,14 @@ body {
 .dial-number {
   position: absolute;
   color: rgba(255, 255, 255, 0.9);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
   left: 50%;
-  top: 28px;
-  transform-origin: 50% 142px; /* center-aligned to dial radius */
-  width: 30px;
+  top: 26px;
+  transform-origin: 50% 150px; /* center-aligned to dial radius */
+  width: 28px;
   text-align: center;
-  margin-left: -15px;
+  margin-left: -14px;
   z-index: 2;
   opacity: 0;
   transition: opacity 0.3s ease-out 0.1s;
@@ -330,15 +330,15 @@ body {
   letter-spacing: -0.5px;
 }
 
-/* Triangular pointer snug to dial edge, pointing into the dial (rightward tip) */
+/* Triangular pointer snug to dial edge, pointing into the dial (leftward tip) */
 .dial-pointer {
   position: absolute;
   width: 0;
   height: 0;
   border-top: 12px solid transparent;
   border-bottom: 12px solid transparent;
-  border-left: 16px solid #ff9f0a; /* point right */
-  left: 154px; /* Position at right edge of visible dial quarter (160px dial center - 6px to snug) */
+  border-right: 16px solid #ff9f0a; /* point left into dial */
+  left: 144px; /* Position at right edge of visible dial quarter */
   top: 50%;
   transform: translateY(-50%);
   z-index: 15;
