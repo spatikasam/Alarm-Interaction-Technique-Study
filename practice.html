@@ -230,19 +230,19 @@
       dom.dial.style.display = useDial ? 'block' : 'none';
       if (window.alarmDial) {
         window.alarmDial.setActive(useDial);
-        // Open dial fully for Radial Clock-Wheel trials and lock rotation
+        // Open dial fully for Radial Clock-Wheel trials and unlock rotation
         if (useDial) {
           const dialContainer = document.querySelector('.dial-container');
           if (dialContainer) {
             dialContainer.classList.add('open');
           }
-          window.alarmDial.setRotationLock(true);  // Lock rotation to prevent jitter
+          window.alarmDial.setRotationLock(false);  // Unlock rotation for Radial trials
         } else {
           const dialContainer = document.querySelector('.dial-container');
           if (dialContainer) {
             dialContainer.classList.remove('open');
           }
-          window.alarmDial.setRotationLock(false);
+          window.alarmDial.setRotationLock(true);  // Lock rotation for Scroll trials
         }
       }
 

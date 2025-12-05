@@ -85,6 +85,23 @@
       <div style="font-size: 14px; color: #8e8e93;">Resuming soon...</div>
     </div>
     
+    <!-- Intro Modal -->
+    <div id="intro-modal" class="trial-modal">
+      <div class="trial-modal-content">
+        <h2>Main Experiment</h2>
+        <p style="margin-bottom: 20px;">You are about to begin the main study.</p>
+        <div style="background: rgba(255,255,255,0.05); padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+          <div style="font-size: 13px; color: #8e8e93; margin-bottom: 8px;">STUDY DETAILS</div>
+          <div style="font-size: 15px; line-height: 1.6;">
+            <div><strong>54 trials</strong> across <strong>3 blocks</strong></div>
+            <div style="margin-top: 6px; font-size: 13px; color: #d1d1d1;">18 trials per block with breaks between blocks</div>
+          </div>
+        </div>
+        <p style="font-size: 14px; color: #d1d1d1;">All data will be logged. Take your time and focus on accuracy.</p>
+        <button id="intro-start" class="pill-btn">Begin Experiment</button>
+      </div>
+    </div>
+    
     <!-- Post-Experiment Screen -->
     <div id="post-screen" class="trial-modal hidden">
       <div class="trial-modal-content">
@@ -167,6 +184,20 @@
     // Build alarms for current trial and refresh dial
     function buildAlarmList(trial, targetIdx) {
       const list = alarms.slice(0, trial.len);
+      
+      console.log('🔨 buildAlarmList called:', {
+        trialLen: trial.len,
+        listLen: list.length,
+        targetIdx,
+        scrollElement: dom.scroll,
+        scrollExists: !!dom.scroll
+      });
+      
+      if (!dom.scroll) {
+        console.error('❌ dom.scroll is null or undefined!');
+        return;
+      }
+      
       dom.scroll.innerHTML = '';
       
       // Randomly turn on 30-50% of alarms (not including target)
@@ -197,7 +228,7 @@
       });
 
       const rowCount = document.querySelectorAll('.alarm-row').length;
-      console.log('Built alarm list for trial', trial.trialNo ?? 'practice', 'rows=', rowCount);
+      console.log('✅ Built alarm list - rows created:', rowCount);
       if (rowCount === 0) {
         console.error('❌ Alarm list build failed; not proceeding');
         return;
@@ -232,12 +263,22 @@
       submit: document.getElementById('effort-submit'),
       timerDisplay: document.getElementById('timer-display'),
       breakOverlay: document.getElementById('break-overlay'),
-      breakCountdown: document.getElementById('break-countdown')
+      breakCountdown: document.getElementById('break-countdown'),
+      introModal: document.getElementById('intro-modal'),
+      introStart: document.getElementById('intro-start'),
+      post: document.getElementById('post-screen'),
+      returnHome: document.getElementById('return-home')
     };
     
     // Alias for backwards compatibility
     dom.next = dom.submit;
     dom.note = document.querySelector('.footer-note') || { textContent: '' };
+    
+    // Intro modal handler
+    dom.introStart.onclick = () => {
+      dom.introModal.classList.add('hidden');
+      renderTrial();
+    };
 
     // ============ TIMER & BREAK UTILITIES ============
     function startTimer() {
@@ -578,7 +619,12 @@
     
     // Start main experiment immediately
     console.log('🚀 Starting main experiment...\n');
-    renderTrial();
+    
+    // Show intro modal first
+    dom.introStart.onclick = () => {
+      dom.introModal.classList.add('hidden');
+      renderTrial();
+    };
 
     // ✓ VERIFICATION: 3-block factorial design
     console.log('✓ 3-Block Factorial Design loaded');

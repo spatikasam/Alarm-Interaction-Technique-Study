@@ -324,7 +324,7 @@ body {
   font-weight: 500;
   left: 50%;
   top: 28px;
-  transform-origin: 50% 148px;
+  transform-origin: 50% calc(150px - 28px);
   width: 26px;
   text-align: center;
   margin-left: -13px;
