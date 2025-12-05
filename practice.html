@@ -320,9 +320,9 @@ Technique: ${store.trial.tech}`;
       if (!toggle) return;
       
       const clickH = +toggle.dataset.h;
-      const wasOff = toggle.classList.contains('off');
+      const wasOn = toggle.classList.contains('on');  // Check if it was ON before clicking
       
-      console.log(`Clicked alarm at ${clickH}:00, target is ${store.target.h}:00, wasOff: ${wasOff}`);
+      console.log(`Clicked alarm at ${clickH}:00, target is ${store.target.h}:00, wasOn: ${wasOn}`);
       
       // Toggle the switch
       toggle.classList.toggle('off');
@@ -330,7 +330,8 @@ Technique: ${store.trial.tech}`;
       
       const row = toggle.closest('.alarm-row');
       
-      if (clickH === store.target.h && wasOff) {
+      // Success: turning OFF the target alarm (it was ON, now turning OFF)
+      if (clickH === store.target.h && wasOn) {
         console.log('✅ Correct alarm turned off! Moving to next trial...');
         
         // Stop timer and deactivate immediately
@@ -355,8 +356,9 @@ Technique: ${store.trial.tech}`;
             row.style.color = '';
           }
           finalizeTrial();
-        }, 600);
-      } else if (clickH !== store.target.h && wasOff) {
+        }, 1000);
+      } else if (clickH !== store.target.h && wasOn) {
+        // Error: turning OFF the wrong alarm
         store.errors++;
         console.log(`❌ Wrong alarm! Errors: ${store.errors}`);
         
