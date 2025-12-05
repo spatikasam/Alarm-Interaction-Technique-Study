@@ -210,6 +210,7 @@ document.addEventListener('pointermove', (e) => {
   }
   
   e.preventDefault();
+  e.stopPropagation();
 });
 
 document.addEventListener('pointerup', (e) => {
@@ -230,6 +231,13 @@ document.addEventListener('pointerup', (e) => {
     }, 1200);
   }
 });
+
+// Prevent page scroll when dragging the dial
+dialContainer.addEventListener('wheel', (e) => {
+  if (isDragging) {
+    e.preventDefault();
+  }
+}, { passive: false });
 
 // Alarm list starts at top, dial should reflect what's centered
 // No automatic scroll on page load
