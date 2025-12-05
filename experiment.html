@@ -417,7 +417,18 @@ Technique: ${store.trial.tech}`;
       dom.mBody.style.whiteSpace = 'pre-line';
       dom.mBody.style.fontSize = '16px';
       dom.mBody.style.fontWeight = '600';
-      dom.modal.classList.remove('hidden');
+      // Don't show trial modal - go straight to trial
+      // dom.modal.classList.remove('hidden');
+      
+      // Start trial immediately
+      store.active = true;
+      store.trialStartIso = new Date().toISOString();
+      
+      // Show target reminder and timer
+      dom.targetTimeReminder.textContent = t.full;
+      dom.trialInfoBar.classList.remove('hidden');
+      
+      startTimer();
 
       dom.submit.disabled = true;
       dom.submit.textContent = 'Submit rating';
@@ -463,6 +474,7 @@ Technique: ${store.trial.tech}`;
       toggle.classList.toggle('on');
       toggle.classList.toggle('off');
 
+      const row = toggle.closest('.alarm-row');
       const isTargetAlarm = clickH === store.target.h;
       
       if (isTargetAlarm && wasOn) {
@@ -470,11 +482,12 @@ Technique: ${store.trial.tech}`;
         stopTimer();
         store.active = false;
         
-        // Green flash success feedback
-        const flash = document.createElement('div');
-        flash.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(52,199,89,0.6);z-index:999;pointer-events:none';
-        document.body.appendChild(flash);
-        setTimeout(() => flash.remove(), 300);
+        // Visual feedback for correct alarm
+        if (row) {
+          row.style.transition = 'all 0.3s ease';
+          row.style.backgroundColor = '#34c759';
+          row.style.color = '#ffffff';
+        }
         
         // Vibrate success pattern
         if (navigator.vibrate) {
@@ -482,6 +495,11 @@ Technique: ${store.trial.tech}`;
         }
         
         setTimeout(() => {
+          if (row) {
+            row.style.backgroundColor = '';
+            row.style.color = '';
+          }
+          
           const ms = Math.round(Date.now() - store.startTime);
           const endIso = new Date().toISOString();
           const t = fmt.time(store.target);
@@ -509,11 +527,21 @@ Technique: ${store.trial.tech}`;
         // Error: toggled any wrong alarm (whether turning ON or OFF)
         store.errors += 1;
         
-        // Red flash error feedback
-        const flash = document.createElement('div');
-        flash.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,59,48,0.6);z-index:999;pointer-events:none';
-        document.body.appendChild(flash);
-        setTimeout(() => flash.remove(), 600);
+        // Visual feedback for wrong alarm
+        if (row) {
+          row.style.transition = 'all 0.2s ease';
+          row.style.backgroundColor = '#ff3b30';
+          row.style.color = '#ffffff';
+          row.style.transform = 'scale(0.98)';
+        }
+        
+        setTimeout(() => {
+          if (row) {
+            row.style.backgroundColor = '';
+            row.style.color = '';
+            row.style.transform = '';
+          }
+        }, 600);
         
         // Vibration feedback
         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
@@ -521,9 +549,17 @@ Technique: ${store.trial.tech}`;
     });
 
     dom.submit.onclick = async () => {
+      console.log('🔘 Submit button clicked');
+      console.log('   Effort modal hidden?', dom.effort.classList.contains('hidden'));
+      
       // If in effort mode, submit effort and show next button
       if (dom.effort.classList.contains('hidden') === false) {
-        if (!store.pending) return;
+        console.log('   📊 Submitting effort rating:', dom.slider.value);
+        
+        if (!store.pending) {
+          console.error('   ❌ No pending result to submit!');
+          return;
+        }
 
         store.pending.mentalEffort = parseInt(dom.slider.value, 10);
         
@@ -533,7 +569,7 @@ Technique: ${store.trial.tech}`;
         sessionStorage.setItem('experimentResults', s);
         localStorage.setItem('experimentResults', s);
 
-        console.log('Result schema:', store.pending);
+        console.log('   ✅ Result saved:', store.pending);
         
         // Post to sheet
         post(store.pending);
@@ -541,11 +577,12 @@ Technique: ${store.trial.tech}`;
         // Hide effort modal and prepare button for next trial
         dom.effort.classList.add('hidden');
         dom.submit.textContent = 'Next trial';
-        dom.submit.id = 'next-trial-btn';
+        dom.submit.disabled = false;
         return;
       }
       
       // If we reach here, it's the "Next trial" button
+      console.log('   ⏭️ Advancing to next trial');
       dom.submit.disabled = true;
       
       // 3s inter-trial break
@@ -561,7 +598,6 @@ Technique: ${store.trial.tech}`;
       
       // Reset button for next trial
       dom.submit.textContent = 'Submit rating';
-      dom.submit.id = 'effort-submit';
       dom.submit.disabled = false;
       
       // Advance to next trial
