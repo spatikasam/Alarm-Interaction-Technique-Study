@@ -155,5 +155,4 @@ document.querySelectorAll('.switch').forEach(switchEl => {
     switchEl.classList.toggle('off');
   });
 });
-  });
-});
+
