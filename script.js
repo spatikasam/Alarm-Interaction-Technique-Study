@@ -195,7 +195,21 @@ alarmsScroll.addEventListener('scroll', () => {
       currentRotation = initialRotation;
       dial.style.transform = `rotate(${currentRotation}deg)`;
     }
-  }, 100);
+  }, 50);
+});
+
+// Also close dial immediately when user touches the alarm list area
+alarmsScroll.addEventListener('pointerdown', (e) => {
+  if (isDrawerOpen && !isDialControlled) {
+    dialContainer.classList.remove('open');
+    isDrawerOpen = false;
+    if (closeTimeout) {
+      clearTimeout(closeTimeout);
+      closeTimeout = null;
+    }
+    currentRotation = initialRotation;
+    dial.style.transform = `rotate(${currentRotation}deg)`;
+  }
 });
 
 // Close dial when tapping outside
