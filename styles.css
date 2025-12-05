@@ -245,15 +245,14 @@ body {
   width: 320px;
   height: 320px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(28, 28, 30, 0.4), rgba(44, 44, 46, 0.4));
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: linear-gradient(135deg, rgba(28, 28, 30, 0.2), rgba(44, 44, 46, 0.2));
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   box-shadow: 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   transform-origin: 50% 50%;
   transform: rotate(0deg);
   pointer-events: none;
-  backdrop-filter: blur(10px);
 }
 
 /* AM/PM semicircle divider - subtle shaded PM half */
