@@ -195,14 +195,7 @@
     function buildAlarmList(trial, targetIdx) {
       const list = alarms.slice(0, trial.len);
       
-      console.log('🔨 buildAlarmList:', { len: trial.len, targetIdx, listLen: list.length });
-      
-      if (!dom.scroll) {
-        console.error('❌ dom.scroll is null or undefined!');
-        return;
-      }
-      
-      console.log('  📜 dom.scroll element:', dom.scroll);
+      if (!dom.scroll) return;
       
       dom.scroll.innerHTML = '';
       dom.scroll.scrollTop = 0;  // Reset scroll to top
@@ -234,9 +227,6 @@
         `;
         dom.scroll.appendChild(row);
       });
-
-      const rowCount = document.querySelectorAll('.alarm-row').length;
-      console.log('  ✅ Built alarm list - rows created:', rowCount);
 
       if (window.alarmDial) {
         window.alarmDial.refresh();
@@ -302,10 +292,7 @@
       returnHome: document.getElementById('return-home')
     };
     
-    // Debug: Check if submit button exists
-    console.log('🔍 DOM Elements Check:');
-    console.log('  effort-submit button:', dom.submit);
-    console.log('  effort-modal:', dom.effort);
+
     
     // Alias for backwards compatibility
     dom.next = dom.submit;
@@ -313,8 +300,6 @@
     
     // Intro modal handler
     dom.introStart.onclick = () => {
-      console.log('🎬 Begin Experiment button clicked');
-      console.log('   Hiding intro modal and calling renderTrial()');
       dom.introModal.classList.add('hidden');
       renderTrial();
     };
@@ -347,7 +332,6 @@
         if (elapsed >= 30) {
           clearInterval(store.timerInterval);
           store.timedOut = true;
-          console.log('⏱️ Trial timed out');
           finalizeTrial();
         }
       }, 100);
@@ -421,15 +405,11 @@
 
     // ============ RENDER ============
     function renderTrial() {
-      console.log(`▶ Starting trial ${store.idx + 1}/${store.trials.length}`);
-      
       if (store.idx >= store.trials.length) {
         return showPostQuestionnaire();
       }
 
       store.trial = store.trials[store.idx];
-      
-      console.log(`  📊 Block ${store.trial.blockNo}, Trial ${store.idx + 1} of ${store.trials.length} • ${store.trial.tech}`);
       
       const list = alarms.slice(0, store.trial.len);
       const tIdx = fmt.target(store.trial.pos, list.length);
@@ -492,7 +472,6 @@ Technique: ${store.trial.tech}`;
     }
     
     function showPostQuestionnaire() {
-      console.log('✅ All trials complete!');
       // Hide trial UI
       dom.modal.classList.add('hidden');
       dom.effort.classList.add('hidden');
@@ -576,12 +555,6 @@ Technique: ${store.trial.tech}`;
             targetTime: t.full,
             isPractice: store.trial.isPractice || false
           };
-          
-          console.log(`📋 Trial ${store.trial.trialNo} completed:`);
-          console.log(`   Technique: ${store.trial.tech}`);
-          console.log(`   Duration: ${ms}ms`);
-          console.log(`   Errors: ${store.errors}`);
-          console.log(`   Target: ${t.full}`);
 
           dom.slider.value = 50;
           dom.submit.disabled = false;  // ✅ ENABLE button when showing effort modal
@@ -612,85 +585,54 @@ Technique: ${store.trial.tech}`;
       }
     });
 
-    // Submit button handler - using addEventListener for reliability
+    // Submit button handler
     async function handleSubmitClick(e) {
-      console.log('🔘 Submit button clicked', e);
-      console.log('   Button:', e.target);
-      console.log('   Disabled?', dom.submit.disabled);
-      console.log('   Effort modal visible?', !dom.effort.classList.contains('hidden'));
-      console.log('   Store.pending:', store.pending);
-      
-      // Prevent default and stop propagation
       e.preventDefault();
       e.stopPropagation();
       
-      // Check if effort modal is visible
       if (dom.effort && !dom.effort.classList.contains('hidden')) {
-        console.log('   📊 Effort modal is visible - submitting rating:', dom.slider.value);
-        
-        if (!store.pending) {
-          console.error('   ❌ No pending result to submit!');
-          return;
-        }
+        if (!store.pending) return;
 
         // Save effort rating
         store.pending.mentalEffort = parseInt(dom.slider.value, 10);
-        console.log('   ✅ Saved mental effort:', store.pending.mentalEffort);
         
         // Log the result
         store.results.push(store.pending);
         const s = JSON.stringify(store.results);
         sessionStorage.setItem('experimentResults', s);
         localStorage.setItem('experimentResults', s);
-
-        console.log('   ✅ Result saved to storage:', store.pending);
         
         // Post to sheet
         post(store.pending);
 
         // Hide effort modal
         dom.effort.classList.add('hidden');
-        console.log('   ✅ Effort modal hidden');
         
         // 3s inter-trial break
-        console.log('   ⏳ Starting 3s inter-trial break...');
         await showBreak(3, false);
         
         store.idx += 1;
-        console.log('   ✅ Trial index advanced to:', store.idx);
         
         // Check for block break (after trials 18 and 36)
         if ((store.idx === 18 || store.idx === 36) && store.idx < store.trials.length) {
-          console.log(`🎯 Block complete! Taking 60s break before Block ${store.trials[store.idx].blockNo}`);
-          await showBreak(60, true); // 1-minute block break
+          await showBreak(60, true);
         }
         
         // Reset slider for next trial
         dom.slider.value = 50;
         
         // Advance to next trial
-        console.log('   ⏭️ Rendering next trial...');
         renderTrial();
-      } else {
-        console.log('   ❌ Effort modal is hidden or not found!');
       }
     }
     
-    // Attach event listener with better error handling
+    // Attach event listener
     if (dom.submit) {
-      // Try addEventListener approach
       dom.submit.addEventListener('click', handleSubmitClick, false);
-      console.log('✅ Submit button event listener attached via addEventListener');
-      
-      // Also set onclick as backup
       dom.submit.onclick = (e) => {
-        console.log('💥 ONCLICK HANDLER FIRING');
         handleSubmitClick(e || window.event);
         return false;
       };
-      console.log('✅ Submit button onclick handler also attached as backup');
-    } else {
-      console.error('❌ Submit button element not found!');
     }
 
     function finalizeTrial() {
@@ -705,48 +647,17 @@ Technique: ${store.trial.tech}`;
 
     // ============ SHEET ============
     async function post(row) {
-      if (!SHEET_URL.startsWith('http')) {
-        console.warn('⚠️  SHEET_URL not configured, skipping post');
-        return;
-      }
-      
-      console.log('📤 Posting trial data to sheet...');
-      console.log('   Row data:', row);
-      console.log('   SHEET_URL:', SHEET_URL);
+      if (!SHEET_URL.startsWith('http')) return;
       
       try {
-        const payload = JSON.stringify(row);
-        console.log('   Payload size:', payload.length, 'bytes');
-        
-        const r = await fetch(SHEET_URL, {
+        await fetch(SHEET_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: payload,
+          body: JSON.stringify(row),
           mode: 'no-cors'
         });
-        
-        console.log('   Fetch completed');
-        console.log('   Response status:', r.status);
-        console.log('   Response ok:', r.ok);
-        console.log('   Response type:', r.type);
-        
-        if (r.type === 'opaque') {
-          console.log('✅ Data sent (opaque response - expected for no-cors)');
-          return; // Success for no-cors requests
-        }
-        
-        const responseText = await r.text();
-        console.log('   Response body:', responseText);
-        
-        if (!r.ok) {
-          throw new Error(`HTTP ${r.status}: ${responseText}`);
-        }
-        
-        console.log('✅ Data successfully posted to sheet!');
       } catch (e) {
-        console.error('❌ Sheet error:', e);
-        console.error('   Error message:', e.message);
-        console.error('   Full error:', e);
+        // Silently fail - data is still saved locally
       }
     }
 

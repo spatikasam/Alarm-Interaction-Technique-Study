@@ -226,10 +226,27 @@
       }
     }
     
-    // Log initial info
-    log('🧪 Test utility ready', 'info');
-    log(`Sheet URL: ${SHEET_URL}`, 'info');
-    log('Fill in the form and click "Send Test Data" to begin', 'info');
+    // Auto-run test on page load with sample data
+    window.addEventListener('load', () => {
+      log('🧪 Test utility loaded', 'info');
+      log(`Sheet URL: ${SHEET_URL}`, 'info');
+      log('', 'info');
+      
+      // Auto-populate with sample data
+      document.getElementById('pid').value = 'TEST-' + Math.random().toString(36).substring(7).toUpperCase();
+      document.getElementById('technique').value = Math.random() > 0.5 ? 'Scroll' : 'Radial Clock-Wheel';
+      document.getElementById('effort').value = Math.floor(Math.random() * 101);
+      document.getElementById('errors').value = Math.floor(Math.random() * 5);
+      
+      log('✅ Sample data populated', 'success');
+      log('', 'info');
+      
+      // Wait 2 seconds then auto-send
+      log('⏳ Auto-sending test data in 2 seconds...', 'warn');
+      setTimeout(() => {
+        sendTestData();
+      }, 2000);
+    });
   </script>
 </body>
 </html>
