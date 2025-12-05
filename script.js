@@ -146,14 +146,13 @@ document.addEventListener('pointerdown', (e) => {
     dial.style.transform = `rotate(${currentRotation}deg)`;
   }
 });
-    dial.style.transform = `rotate(${currentRotation}deg)`;
-  }
-});
 
 // Toggle switches on click
 document.querySelectorAll('.switch').forEach(switchEl => {
   switchEl.addEventListener('click', (e) => {
     e.stopPropagation();
     switchEl.classList.toggle('off');
+  });
+});
   });
 });
