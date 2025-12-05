@@ -128,7 +128,7 @@
   <script>
     (() => {
     // ============ CONFIG ============
-    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxM9ao9piJcGtvbph5AT_L0s65cDIkCssn0iWEDLHrF2TvLt2JI9cgle8ELBochlhji/exec';
+    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyD_2E9oY5yyM3PeA6OBS0ArmAN_HLSMb5gPhBuPErkZm74mD-0HlrzG9Ia0JqGwk3M/exec';
 
     // ============ STATE ============
     const store = {
@@ -368,12 +368,38 @@
     function showBreak(durationSec, isBlockBreak = false) {
       return new Promise(resolve => {
         if (dom.breakOverlay) {
-          dom.breakOverlay.classList.remove('hidden');
+          let breakTitle = isBlockBreak ? '🎯 Block Break' : '⏸️ Brief Pause';
+          let breakInfo = '';
+          
+          if (isBlockBreak && store.idx < store.trials.length) {
+            // For block breaks, show completed block and starting block on separate lines
+            const nextTrial = store.trials[store.idx];
+            const completedBlock = nextTrial.blockNo - 1;
+            const startingBlock = nextTrial.blockNo;
+            breakInfo = `
+              <div style="font-size: 13px; color: #8e8e93;">Block ${completedBlock} complete</div>
+              <div style="font-size: 13px; color: #8e8e93;">Starting Block ${startingBlock}</div>
+            `;
+          } else if (!isBlockBreak && store.idx < store.trials.length) {
+            // For regular breaks, show trial progress within block
+            const nextTrial = store.trials[store.idx];
+            
+            // Count trials in current block for "x of y" within block
+            const trialsInBlock = store.trials.filter(t => t.blockNo === nextTrial.blockNo).length;
+            const trialIndexInBlock = store.trials
+              .slice(0, store.idx)
+              .filter(t => t.blockNo === nextTrial.blockNo).length + 1;
+            
+            breakInfo = `<div style="font-size: 13px; color: #8e8e93; margin-bottom: 8px;">Block ${nextTrial.blockNo} • Trial ${trialIndexInBlock} of ${trialsInBlock}</div>`;
+          }
+          
           dom.breakOverlay.innerHTML = `
-            <div>${isBlockBreak ? 'Take a break' : 'Brief pause'}</div>
-            <div class="break-countdown" id="break-countdown">${durationSec}</div>
-            <div style="font-size: 14px; color: #8e8e93;">Resuming soon...</div>
+            <div style="font-size: 18px; font-weight: 600; margin-bottom: 12px;">${breakTitle}</div>
+            ${breakInfo}
+            <div class="break-countdown" id="break-countdown">${durationSec}s</div>
+            <div style="font-size: 13px; color: #8e8e93; margin-top: 8px;">Resuming in...</div>
           `;
+          dom.breakOverlay.classList.remove('hidden');
         }
         
         let remaining = durationSec;
@@ -382,7 +408,7 @@
         store.breakInterval = setInterval(() => {
           remaining--;
           const countdown = document.getElementById('break-countdown');
-          if (countdown) countdown.textContent = remaining;
+          if (countdown) countdown.textContent = remaining + 's';
           
           if (remaining <= 0) {
             clearInterval(store.breakInterval);
@@ -550,6 +576,12 @@ Technique: ${store.trial.tech}`;
             targetTime: t.full,
             isPractice: store.trial.isPractice || false
           };
+          
+          console.log(`📋 Trial ${store.trial.trialNo} completed:`);
+          console.log(`   Technique: ${store.trial.tech}`);
+          console.log(`   Duration: ${ms}ms`);
+          console.log(`   Errors: ${store.errors}`);
+          console.log(`   Target: ${t.full}`);
 
           dom.slider.value = 50;
           dom.submit.disabled = false;  // ✅ ENABLE button when showing effort modal
@@ -673,19 +705,43 @@ Technique: ${store.trial.tech}`;
 
     // ============ SHEET ============
     async function post(row) {
-      if (!SHEET_URL.startsWith('http')) return;
+      if (!SHEET_URL.startsWith('http')) {
+        console.warn('⚠️  SHEET_URL not configured, skipping post');
+        return;
+      }
+      
+      console.log('📤 Posting trial data to sheet...');
+      console.log('   Row data:', row);
+      
       dom.note.textContent = 'Saving…';
       try {
+        const payload = JSON.stringify(row);
+        console.log('   Payload size:', payload.length, 'bytes');
+        console.log('   URL:', SHEET_URL);
+        
         const r = await fetch(SHEET_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(row)
+          body: payload
         });
-        if (!r.ok) throw new Error(`${r.status}`);
+        
+        console.log('   Response status:', r.status);
+        console.log('   Response ok:', r.ok);
+        
+        const responseText = await r.text();
+        console.log('   Response body:', responseText);
+        
+        if (!r.ok) {
+          throw new Error(`HTTP ${r.status}: ${responseText}`);
+        }
+        
+        console.log('✅ Data successfully posted to sheet!');
         dom.note.textContent = 'Saved to Sheet';
         setTimeout(() => { dom.note.textContent = 'Finish the trial, rate effort, then tap Next.'; }, 1800);
       } catch (e) {
-        console.error('Sheet error:', e);
+        console.error('❌ Sheet error:', e);
+        console.error('   Error message:', e.message);
+        console.error('   Error type:', e.constructor.name);
         dom.note.textContent = 'Save failed (kept locally)';
         setTimeout(() => { dom.note.textContent = 'Finish the trial, rate effort, then tap Next.'; }, 2500);
       }
