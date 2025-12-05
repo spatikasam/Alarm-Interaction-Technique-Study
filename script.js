@@ -41,10 +41,32 @@ for (let i = 0; i < 24; i++) {
 let isDragging = false;
 let startY = 0;
 let startRotation = 0;
-let currentRotation = 0;  // Start at 0° so hour 6 (6 AM at 90°) is at pointer
+let currentRotation = 0;
+let initialRotation = 0;  // Will be set based on first alarm
 let isDrawerOpen = false;
 let closeTimeout = null;
 let isDialControlled = false;  // True when dial is being actively manipulated
+
+// Get the first alarm's hour to set initial dial position
+function getFirstAlarmHour() {
+  if (alarmRows.length > 0) {
+    return parseInt(alarmRows[0].dataset.hour);
+  }
+  return 6;  // Default to 6 AM if no alarms
+}
+
+// Calculate dial rotation needed to point to a specific hour
+function getRotationForHour(hourIndex) {
+  // Hour is at angle: hourIndex * 15°
+  // Pointer is at 90° (right edge)
+  // To point to the hour: rotation = 90° - (hourIndex * 15°)
+  return 90 - (hourIndex * 15);
+}
+
+// Set initial rotation based on first alarm
+const firstAlarmHour = getFirstAlarmHour();
+initialRotation = getRotationForHour(firstAlarmHour);
+currentRotation = initialRotation;
 
 // Apply initial dial rotation
 dial.style.transform = `rotate(${currentRotation}deg)`;
@@ -156,7 +178,7 @@ alarmsScroll.addEventListener('scroll', () => {
         clearTimeout(closeTimeout);
         closeTimeout = null;
       }
-      currentRotation = 0;
+      currentRotation = initialRotation;
       dial.style.transform = `rotate(${currentRotation}deg)`;
     }
   }, 100);
@@ -171,7 +193,7 @@ document.addEventListener('pointerdown', (e) => {
       clearTimeout(closeTimeout);
       closeTimeout = null;
     }
-    currentRotation = 0;
+    currentRotation = initialRotation;
     dial.style.transform = `rotate(${currentRotation}deg)`;
   }
 });
