@@ -191,16 +191,16 @@
       <button id="gen">Generate Trial Order</button>
     </div>
 
+    <div class="start-button-container">
+      <button id="start" disabled>Start Experiment</button>
+    </div>
+
     <div id="trial-table-container" style="display:none;">
       <h2>Trial Order</h2>
       <table id="trial-table">
         <thead><tr><th>Trial#</th><th>Block</th><th>Tech</th><th>Len</th><th>Pos</th></tr></thead>
         <tbody></tbody>
       </table>
-    </div>
-
-    <div class="start-button-container">
-      <button id="start" disabled>Start Experiment</button>
     </div>
 
     <div id="results-container" style="display:none;">
@@ -279,10 +279,10 @@ document.getElementById('gen').onclick = () => {
   state.results = [];
   state.participantId = document.getElementById('pid').value;
   
-  // Display trial table (only logged trials)
+  // Display trial table (all logged trials)
   const tbody = document.querySelector('#trial-table tbody');
   tbody.innerHTML = '';
-  allTrials.slice(0, 18).forEach((t, i) => { // Show first block as preview
+  allTrials.forEach((t, i) => { // Show all 54 trials
     const tr = document.createElement('tr');
     tr.innerHTML = `<td>${t.trialNo}</td><td>${t.blockNo}</td><td>${t.tech}</td><td>${t.len}</td><td>${t.pos}</td>`;
     tbody.appendChild(tr);
@@ -290,7 +290,7 @@ document.getElementById('gen').onclick = () => {
   
   document.getElementById('trial-table-container').style.display = 'block';
   document.getElementById('start').disabled = false;
-  alert(`Generated 58 total trials:\n  • 4 practice trials (not logged)\n  • 54 logged trials (3 blocks × 18 conditions)`);
+  alert(`Trial order generated!\n\n📊 Main Experiment: 54 logged trials\n   • 3 blocks × 18 conditions\n   • All trials will be saved\n\n🔷 Practice: 4 warmup trials\n   • NOT counted in results\n   • NOT logged to data\n\nReady to start!`);
 };
 
 // Start → redirect to practice.html with trial data

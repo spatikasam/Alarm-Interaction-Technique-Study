@@ -143,19 +143,30 @@
     function buildAlarmList(trial, targetIdx) {
       const list = alarms.slice(0, trial.len);
       dom.scroll.innerHTML = '';
+      
+      // Randomly turn on 30-50% of alarms (not including target)
+      const numOn = Math.floor(trial.len * (0.3 + Math.random() * 0.2));
+      const onIndices = new Set();
+      while (onIndices.size < numOn) {
+        const randomIdx = Math.floor(Math.random() * trial.len);
+        if (randomIdx !== targetIdx) {
+          onIndices.add(randomIdx);
+        }
+      }
 
       list.forEach((a, i) => {
         const { time, ap } = fmt.time(a);
         const isTarget = i === targetIdx;
+        const isOn = isTarget || onIndices.has(i);
         const row = document.createElement('div');
-        row.className = 'alarm-row' + (isTarget ? ' target-row' : '');
+        row.className = 'alarm-row'; // No special highlighting for target
         row.dataset.h = a.h;
         row.innerHTML = `
           <div class="alarm-left">
             <div><span class="alarm-time">${time}</span><span class="alarm-am">${ap}</span></div>
-            <div class="alarm-label">${isTarget ? 'Target alarm — turn off' : a.label}</div>
+            <div class="alarm-label">${a.label}</div>
           </div>
-          <div class="switch${isTarget ? '' : ' off'}"><div class="switch-knob"></div></div>
+          <div class="switch${isOn ? '' : ' off'}"><div class="switch-knob"></div></div>
         `;
         dom.scroll.appendChild(row);
       });
@@ -190,8 +201,15 @@
       }
 
       const t = fmt.time(store.target);
-      dom.mTitle.textContent = `Practice Trial ${store.idx + 1}`;
-      dom.mBody.textContent = `Target: ${t.full} • Technique: ${store.trial.tech}`;
+      dom.mTitle.textContent = `Practice Trial ${store.idx + 1} of 4`;
+      dom.mBody.textContent = `Find and turn OFF this alarm:
+
+⏰ ${t.full} - ${store.target.label}
+
+Technique: ${store.trial.tech}`;
+      dom.mBody.style.whiteSpace = 'pre-line';
+      dom.mBody.style.fontSize = '16px';
+      dom.mBody.style.fontWeight = '600';
 
       dom.modal.classList.remove('hidden');
     }
