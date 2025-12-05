@@ -336,9 +336,10 @@ Technique: ${store.trial.tech}`;
         stopTimer();
         store.active = false;
         
-        // Visual feedback for correct alarm
-        row.style.backgroundColor = '#34c759';
-        row.style.transition = 'background-color 0.3s ease';
+        // Visual feedback for correct alarm - make it very obvious
+        row.style.transition = 'all 0.3s ease';
+        row.style.backgroundColor = '#34c759 !important';
+        row.style.color = '#ffffff';
         
         // Vibrate success pattern if supported
         if (navigator.vibrate) {
@@ -347,19 +348,22 @@ Technique: ${store.trial.tech}`;
         
         setTimeout(() => {
           row.style.backgroundColor = '';
+          row.style.color = '';
           finalizeTrial();
         }, 600);
       } else if (clickH !== store.target.h && wasOff) {
         store.errors++;
         console.log(`❌ Wrong alarm! Errors: ${store.errors}`);
         
-        // Visual feedback for wrong alarm - more noticeable
-        row.style.backgroundColor = '#ff3b30';
-        row.style.transition = 'background-color 0.2s ease';
+        // Visual feedback for wrong alarm - make it very obvious
+        row.style.transition = 'all 0.2s ease';
+        row.style.backgroundColor = '#ff3b30 !important';
+        row.style.color = '#ffffff';
         row.style.transform = 'scale(0.98)';
         
         setTimeout(() => {
           row.style.backgroundColor = '';
+          row.style.color = '';
           row.style.transform = '';
         }, 600);
         
