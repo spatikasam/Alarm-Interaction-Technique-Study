@@ -66,10 +66,10 @@ body {
   color: #f5f5f5;
 }
 .header-left { font-size: 17px; color: #ff9f0a; cursor: default; }
-.header-title { font-size: 22px; font-weight: 600; }
+.header-title { font-size: 22px; font-weight: 600; display: none; }
 
 .header-subtitle {
-  font-size: 11px;
+  font-size: 9px;
   color: #8e8e93;
   font-weight: 500;
   margin-top: 2px;
@@ -212,9 +212,9 @@ body {
   position: absolute;
   left: -130px;       /* peek out ~190px (59% of 320px) on the left */
   top: 220px;         /* position relative to phone content (after header + banner) */
-  width: 320px;
+  width: 330px;       /* Extended slightly to show pointer */
   height: 320px;
-  overflow: hidden;
+  overflow: visible;  /* Allow pointer to show */
   z-index: 10;
   transition: left 0.25s ease-out;
   cursor: pointer;
@@ -328,16 +328,15 @@ body {
   transition: opacity 0.3s ease-out 0.1s;
 }
 
-/* sleek triangular pointer */
+/* Triangular pointer pointing right to the dial */
 .dial-pointer {
   position: absolute;
   width: 0;
   height: 0;
-  border-left: 10px solid transparent;
-  border-right: 0 solid transparent;
-  border-top: 8px solid #ff9f0a;
-  border-bottom: 8px solid #ff9f0a;
-  left: 158px;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 16px solid #ff9f0a;
+  right: -6px;
   top: 50%;
   transform: translateY(-50%);
   z-index: 15;

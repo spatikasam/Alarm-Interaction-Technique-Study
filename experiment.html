@@ -18,8 +18,7 @@
 
     <div class="header">
       <div class="header-left">Edit</div>
-      <div class="header-title">Alarm</div>
-      <div class=\"header-subtitle\" id=\"header-subtitle\">Rep 1 • Trial 1 of 36 • Radial Clock-Wheel</div>
+      <div class="header-subtitle" id="header-subtitle">Block 1 • Trial 1 of 58 • Radial Clock-Wheel</div>
       <div class="header-plus">+</div>
     </div>
 
@@ -257,14 +256,22 @@
       store.pending = null;
 
       // Update header subtitle with block and trial info
-      const isPractice = store.trial.isPractice ? ' (Practice)' : '';
-      const blockInfo = store.trial.isPractice ? 'Practice' : `Block ${store.trial.blockNo}`;
+      const isPractice = store.trial.isPractice ? ' PRACTICE' : '';
+      const blockInfo = store.trial.isPractice ? '🔷 PRACTICE' : `Block ${store.trial.blockNo}`;
       if (document.getElementById('header-subtitle')) {
         document.getElementById('header-subtitle').textContent = `${blockInfo} • Trial ${store.idx + 1} of ${store.trials.length} • ${store.trial.tech}${isPractice}`;
       }
 
       dom.scroll.innerHTML = '';
       console.log('Building alarm rows for', store.trial.len, 'alarms...');
+      console.log('Alarm list slice(0, len):', list);
+      
+      if (list.length === 0) {
+        console.error('❌ Alarm list is empty! Trial.len:', store.trial.len);
+        dom.scroll.innerHTML = '<div style="padding: 20px; color: red;">No alarms generated. Check trial configuration.</div>';
+        return;
+      }
+      
       list.forEach((a, i) => {
         const { time, ap } = fmt.time(a);
         const isTarget = i === tIdx;
@@ -280,7 +287,7 @@
         `;
         dom.scroll.appendChild(row);
       });
-      console.log('Alarm rows created:', document.querySelectorAll('.alarm-row').length);
+      console.log('✓ Alarm rows created:', document.querySelectorAll('.alarm-row').length);
 
       const useDial = store.trial.tech === 'Radial Clock-Wheel';
       console.log('Dial display:', useDial ? 'VISIBLE' : 'HIDDEN', '(Technique:', store.trial.tech + ')');
