@@ -42,6 +42,7 @@ let isDragging = false;
 let startY = 0;
 let startRotation = 0;
 let currentRotation = 0;
+let lastHapticHour = null;  // Track last hour that triggered haptic
 let initialRotation = 0;  // Will be set based on first alarm
 let isDrawerOpen = false;
 let closeTimeout = null;
@@ -94,19 +95,33 @@ function getPointedHour() {
 
 // Function to scroll alarm list to show alarm for given hour
 function scrollToHour(hourIndex) {
-  let found = false;
+  // Always find the closest alarm to the target hour
+  let closestRow = null;
+  let closestDiff = Infinity;
+  
   alarmRows.forEach((row) => {
-    if (!found && parseInt(row.dataset.hour) === hourIndex) {
-      row.scrollIntoView({ behavior: 'auto', block: 'start' });
-      found = true;
+    const rowHour = parseInt(row.dataset.hour);
+    const diff = Math.abs(rowHour - hourIndex);
+    
+    // Also consider wrapping (e.g., hour 23 is close to hour 0)
+    const wrappedDiff = Math.min(diff, 24 - diff);
+    
+    if (wrappedDiff < closestDiff) {
+      closestDiff = wrappedDiff;
+      closestRow = row;
     }
   });
+  
+  if (closestRow) {
+    closestRow.scrollIntoView({ behavior: 'auto', block: 'start' });
+  }
 }
 
 // Start drag when hovering over the dial container (peeking portion)
 dialContainer.addEventListener('pointerdown', (e) => {
   isDragging = true;
   isDialControlled = true;
+  lastHapticHour = null;  // Reset haptic tracking
   startY = e.clientY;
   startRotation = currentRotation;
   dialContainer.setPointerCapture(e.pointerId);
@@ -144,14 +159,21 @@ document.addEventListener('pointermove', (e) => {
     // Apply rotation to dial
     dial.style.transform = `rotate(${currentRotation}deg)`;
     
-    // Haptic feedback
-    if (navigator.vibrate) {
-      navigator.vibrate(10);
-    }
-    
-    // Update alarm list scroll position
+    // Get the current pointed hour
     const pointedHour = getPointedHour();
-    scrollToHour(pointedHour);
+    
+    // Haptic feedback only when hour changes (not on every snap)
+    if (pointedHour !== lastHapticHour) {
+      lastHapticHour = pointedHour;
+      
+      // Use stronger haptic for iOS devices
+      if (window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate(15);
+      }
+      
+      // Update alarm list scroll position
+      scrollToHour(pointedHour);
+    }
   }
   
   e.preventDefault();

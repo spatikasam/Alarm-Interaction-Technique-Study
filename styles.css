@@ -148,9 +148,9 @@ body {
 
 /* DIAL drawer */
 .dial-container {
-  position: absolute;
+  position: fixed;
   left: -130px;       /* peek out ~190px (59% of 320px) on the left */
-  top: 50%;           /* vertically center */
+  top: 50%;           /* vertically center on viewport */
   transform: translateY(-50%);
   width: 320px;
   height: 320px;
