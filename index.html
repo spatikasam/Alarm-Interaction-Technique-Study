@@ -36,7 +36,7 @@
 
   h1 { 
     text-align:center; 
-    font-size:22px; 
+    font-size:18px; 
     font-weight:700; 
     margin:20px 0 6px;
     color:#fff;
@@ -180,16 +180,12 @@
 
 <div class="phone">
   <div class="container">
-    <h1>Alarm Interaction Technique Study<br><small>Scroll vs Radial Clock-Wheel</small></h1>
+    <h1>Alarm Study: Scroll vs Radial Clock-Wheel</h1>
 
     <div class="config">
       <div>
         <label>Participant ID</label>
         <input id="pid" value="P001">
-      </div>
-      <div>
-        <label>Seed (optional)</label>
-        <input id="seed" placeholder="random">
       </div>
       <p style="font-size:12px; color:#8e8e93; margin-top:8px;">54 logged trials + 4 practice (3 blocks × 18 conditions • ~32-36 min)</p>
       <button id="gen">Generate Trial Order</button>
@@ -239,8 +235,7 @@ document.getElementById('gen').onclick = () => {
     )
   );
   
-  const seedInput = document.getElementById('seed');
-  const seed = seedInput && seedInput.value.trim() !== '' ? +seedInput.value : Math.random() * 4294967295;
+  const seed = Math.random() * 4294967295;
   const rng = mulberry32(seed);
   
   // Fisher-Yates shuffle utility
