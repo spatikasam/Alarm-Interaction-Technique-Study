@@ -341,7 +341,7 @@ body {
   justify-content: center;
   left: 148px;
   top: 18px;
-  transform-origin: 12px 142px;
+  transform-origin: 12px 160px;
   z-index: 2;
   opacity: 0;
   transition: opacity 0.3s ease-out 0.1s;
