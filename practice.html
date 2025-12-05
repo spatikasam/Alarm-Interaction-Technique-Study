@@ -312,11 +312,22 @@ Technique: ${store.trial.tech}`;
     }
 
     document.addEventListener('click', (e) => {
-      console.log('🖱️ Click detected, store.active:', store.active);
+      console.log('🖱️ Click detected, store.active:', store.active, 'Target:', e.target.className);
       if (!store.active) return;
       
-      // Check if clicking on a switch (toggle button)
-      const sw = e.target.closest('.switch');
+      // Check if clicking on a switch (toggle button) or its child
+      let sw = e.target.closest('.switch');
+      
+      // If not found, check if the target itself is the switch
+      if (!sw && e.target.classList.contains('switch')) {
+        sw = e.target;
+      }
+      
+      // If still not found, check if we clicked on switch-knob
+      if (!sw && e.target.classList.contains('switch-knob')) {
+        sw = e.target.parentElement;
+      }
+      
       console.log('  Switch element found:', !!sw);
       if (!sw) return;
       
