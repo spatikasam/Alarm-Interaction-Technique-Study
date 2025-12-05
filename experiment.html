@@ -341,10 +341,9 @@
         clearInterval(store.timerInterval);
         store.timerInterval = null;
       }
-      if (dom.trialInfoBar) {
-        dom.trialInfoBar.classList.add('hidden');
-      }
+      // Just hide the timer countdown, keep the target reminder visible during effort modal
       if (dom.timerCountdown) {
+        dom.timerCountdown.textContent = '';  // Clear timer display
         dom.timerCountdown.classList.remove('warning', 'timeout');
       }
     }
@@ -536,6 +535,7 @@ Technique: ${store.trial.tech}`;
           };
 
           dom.slider.value = 50;
+          dom.submit.disabled = false;  // ✅ ENABLE button when showing effort modal
           dom.effort.classList.remove('hidden');
         }, 1000);
       } else if (clickH !== store.target.h) {
@@ -627,6 +627,10 @@ Technique: ${store.trial.tech}`;
       stopTimer();
       store.active = false;
       dom.modal.classList.add('hidden');
+      // Hide the trial info bar after the trial is done
+      if (dom.trialInfoBar) {
+        dom.trialInfoBar.classList.add('hidden');
+      }
     }
 
     // ============ SHEET ============
