@@ -394,18 +394,17 @@ Technique: ${store.trial.tech}`;
       // Skip effort rating for practice - go directly to next trial
       console.log(`Practice ${store.idx + 1} complete`);
       
-      setTimeout(async () => {
+      setTimeout(() => {
         store.idx += 1;
         
         if (store.idx < practiceTrials.length) {
-          await showBreak(2);
           renderTrial();
         } else {
           // Practice complete, go to main experiment
           console.log('✅ Practice complete! Moving to main experiment...');
           window.location.href = 'experiment.html';
         }
-      }, 500);
+      }, 300);
     }
 
     // Initialize
