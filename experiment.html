@@ -275,6 +275,11 @@
       returnHome: document.getElementById('return-home')
     };
     
+    // Debug: Check if submit button exists
+    console.log('🔍 DOM Elements Check:');
+    console.log('  effort-submit button:', dom.submit);
+    console.log('  effort-modal:', dom.effort);
+    
     // Alias for backwards compatibility
     dom.next = dom.submit;
     dom.note = document.querySelector('.footer-note') || { textContent: '' };
