@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Alarm Dial Navigation Experiment</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="phone">
+    <div class="status-bar">
+      <div class="status-time">9:41</div>
+      <div class="status-right">
+        <svg class="status-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        <svg class="status-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.34C7 21.4 7.6 22 8.33 22h7.34c.73 0 1.33-.6 1.33-1.33V5.33C19 4.6 18.4 4 17.67 4zm.33 16H8V6h8v14z"/></svg>
+      </div>
+    </div>
+
+    <div class="header">
+      <div class="header-left">Edit</div>
+      <div class="header-title">Alarm</div>
+      <div class="header-plus">+</div>
+    </div>
+
+    <div class="alarms-scroll" id="alarmsScroll">
+      <div class="alarm-row" data-hour="5">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">5:00</span>
+            <span class="alarm-am">AM</span>
+          </div>
+          <div class="alarm-label">Early Start</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="5">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">5:30</span>
+            <span class="alarm-am">AM</span>
+          </div>
+          <div class="alarm-label">Backup</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="6">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">6:00</span>
+            <span class="alarm-am">AM</span>
+          </div>
+          <div class="alarm-label">Wake Up</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="6">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">6:30</span>
+            <span class="alarm-am">AM</span>
+          </div>
+          <div class="alarm-label">Snooze</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="7">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">7:00</span>
+            <span class="alarm-am">AM</span>
+          </div>
+          <div class="alarm-label">Workout</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="7">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">7:30</span>
+            <span class="alarm-am">AM</span>
+          </div>
+          <div class="alarm-label">Morning Exercise</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="8">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">8:00</span>
+            <span class="alarm-am">AM</span>
+          </div>
+          <div class="alarm-label">Breakfast</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="8">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">8:15</span>
+            <span class="alarm-am">AM</span>
+          </div>
+          <div class="alarm-label">Leave for Work</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="9">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">9:00</span>
+            <span class="alarm-am">AM</span>
+          </div>
+          <div class="alarm-label">Morning Meeting</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="10">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">10:00</span>
+            <span class="alarm-am">AM</span>
+          </div>
+          <div class="alarm-label">Coffee Break</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="12">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">12:00</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Lunch Break</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="12">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">12:30</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Medicine</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="14">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">2:00</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Standup</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="15">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">3:00</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Afternoon Meeting</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="16">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">4:00</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Pick up kids</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="17">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">5:00</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">End Work</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="18">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">6:00</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Gym Time</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="18">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">6:30</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Dinner Prep</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="19">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">7:00</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Dinner</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="20">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">8:00</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Family Time</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="21">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">9:00</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Wind Down</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="21">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">9:30</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Reading</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="22">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">10:00</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Bedtime Prep</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="22">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">10:30</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Bedtime</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+
+      <div class="alarm-row" data-hour="23">
+        <div class="alarm-left">
+          <div>
+            <span class="alarm-time">11:00</span>
+            <span class="alarm-am">PM</span>
+          </div>
+          <div class="alarm-label">Late Night</div>
+        </div>
+        <div class="switch"><div class="switch-knob"></div></div>
+      </div>
+    </div>
+
+    <div class="dial-container">
+      <div class="dial" id="dial">
+        <div class="dial-am-label">
+          <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          AM
+        </div>
+        <div class="dial-pm-label">
+          <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          PM
+        </div>
+      </div>
+      <div class="dial-pointer"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,331 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Alarm Dial Navigation Experiment</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Scroll vs Quick Panel – Alarm Study</title>
+<style>
+  :root { --blue:#007aff; --red:#ff3b30; --green:#34c759; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+    background:#000;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  
+  .phone {
+    width:390px;
+    max-width:100vw;
+    height:844px;
+    max-height:100vh;
+    background:#1c1c1e;
+    overflow-y:auto;
+    overflow-x:hidden;
+    color:#f5f5f5;
+    position:relative;
+  }
+
+  .container { 
+    padding:20px;
+    width:100%;
+  }
+
+  h1 { 
+    text-align:center; 
+    font-size:28px; 
+    font-weight:700; 
+    margin:20px 0 8px;
+    color:#fff;
+  }
+  
+  h1 small {
+    display:block;
+    font-weight:400;
+    font-size:14px;
+    color:#8e8e93;
+    margin-top:4px;
+  }
+  
+  .config, #trial-table-container, #results-container {
+    background:#2c2c2e; 
+    border-radius:16px; 
+    padding:16px; 
+    margin:16px 0;
+  }
+  
+  label {
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    color:#8e8e93;
+    margin-bottom:6px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+  
+  input {
+    width:100%;
+    padding:12px;
+    font-size:16px;
+    border:none;
+    border-radius:10px;
+    margin-bottom:12px;
+    background:#3a3a3c;
+    color:#fff;
+    font-family:inherit;
+  }
+  
+  input::placeholder {
+    color:#636366;
+  }
+  
+  button {
+    background:var(--blue); 
+    color:white; 
+    border:none; 
+    border-radius:12px;
+    padding:14px 24px; 
+    font-size:17px; 
+    font-weight:600; 
+    cursor:pointer;
+    width:100%;
+  }
+  button:disabled { background:#3a3a3c; color:#636366; cursor:not-allowed; }
+
+  table { 
+    width:100%; 
+    border-collapse:collapse; 
+    margin-top:10px;
+    font-size:13px;
+  }
+  th, td { 
+    padding:10px 6px; 
+    text-align:left; 
+    border-bottom:1px solid #3a3a3c;
+  }
+  th { 
+    background:#3a3a3c; 
+    font-weight:600;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    color:#8e8e93;
+  }
+  
+  td {
+    color:#f5f5f5;
+  }
+  
+  #trial-table-container h2,
+  #results-container h2 {
+    font-size:20px;
+    font-weight:600;
+    margin-bottom:12px;
+    color:#fff;
+  }
+  
+  .start-button-container {
+    text-align:center;
+    margin:30px 0 40px;
+  }
+  
+  #start {
+    font-size:18px;
+    padding:16px 40px;
+  }
+  
+  #download-csv {
+    margin-top:16px;
+    font-size:16px;
+    padding:14px 32px;
+  }
+</style>
+</style>
 </head>
 <body>
-  <div class="phone">
-    <div class="status-bar">
-      <div class="status-time">9:41</div>
-      <div class="status-right">
-        <svg class="status-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
-        <svg class="status-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.34C7 21.4 7.6 22 8.33 22h7.34c.73 0 1.33-.6 1.33-1.33V5.33C19 4.6 18.4 4 17.67 4zm.33 16H8V6h8v14z"/></svg>
+
+<div class="phone">
+  <div class="container">
+    <h1>Alarm Study<br><small>Scroll vs Quick Panel</small></h1>
+
+    <div class="config">
+      <div>
+        <label>Participant ID</label>
+        <input id="pid" value="P001">
       </div>
+      <div>
+        <label>Trials per condition</label>
+        <input id="reps" type="number" value="5" min="1">
+      </div>
+      <div>
+        <label>Seed (optional)</label>
+        <input id="seed" placeholder="random">
+      </div>
+      <button id="gen">Generate Trial Order</button>
     </div>
 
-    <div class="header">
-      <div class="header-left">Edit</div>
-      <div class="header-title">Alarm</div>
-      <div class="header-plus">+</div>
+    <div id="trial-table-container" style="display:none;">
+      <h2>Trial Order</h2>
+      <table id="trial-table">
+        <thead><tr><th>#</th><th>Tech</th><th>Len</th><th>Pos</th><th>Rep</th></tr></thead>
+        <tbody></tbody>
+      </table>
     </div>
 
-    <div class="alarms-scroll" id="alarmsScroll">
-      <div class="alarm-row" data-hour="5">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">5:00</span>
-            <span class="alarm-am">AM</span>
-          </div>
-          <div class="alarm-label">Early Start</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="5">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">5:30</span>
-            <span class="alarm-am">AM</span>
-          </div>
-          <div class="alarm-label">Backup</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="6">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">6:00</span>
-            <span class="alarm-am">AM</span>
-          </div>
-          <div class="alarm-label">Wake Up</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="6">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">6:30</span>
-            <span class="alarm-am">AM</span>
-          </div>
-          <div class="alarm-label">Snooze</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="7">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">7:00</span>
-            <span class="alarm-am">AM</span>
-          </div>
-          <div class="alarm-label">Workout</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="7">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">7:30</span>
-            <span class="alarm-am">AM</span>
-          </div>
-          <div class="alarm-label">Morning Exercise</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="8">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">8:00</span>
-            <span class="alarm-am">AM</span>
-          </div>
-          <div class="alarm-label">Breakfast</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="8">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">8:15</span>
-            <span class="alarm-am">AM</span>
-          </div>
-          <div class="alarm-label">Leave for Work</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="9">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">9:00</span>
-            <span class="alarm-am">AM</span>
-          </div>
-          <div class="alarm-label">Morning Meeting</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="10">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">10:00</span>
-            <span class="alarm-am">AM</span>
-          </div>
-          <div class="alarm-label">Coffee Break</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="12">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">12:00</span>
-            <span class="alarm-am">PM</span>
-          </div>
-          <div class="alarm-label">Lunch Break</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="12">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">12:30</span>
-            <span class="alarm-am">PM</span>
-          </div>
-          <div class="alarm-label">Medicine</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="14">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">2:00</span>
-            <span class="alarm-am">PM</span>
-          </div>
-          <div class="alarm-label">Standup</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="15">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">3:00</span>
-            <span class="alarm-am">PM</span>
-          </div>
-          <div class="alarm-label">Afternoon Meeting</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="16">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">4:00</span>
-            <span class="alarm-am">PM</span>
-          </div>
-          <div class="alarm-label">Pick up kids</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="17">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">5:00</span>
-            <span class="alarm-am">PM</span>
-          </div>
-          <div class="alarm-label">End Work</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="18">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">6:00</span>
-            <span class="alarm-am">PM</span>
-          </div>
-          <div class="alarm-label">Gym Time</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="18">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">6:30</span>
-            <span class="alarm-am">PM</span>
-          </div>
-          <div class="alarm-label">Dinner Prep</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="19">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">7:00</span>
-            <span class="alarm-am">PM</span>
-          </div>
-          <div class="alarm-label">Dinner</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="20">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">8:00</span>
-            <span class="alarm-am">PM</span>
-          </div>
-          <div class="alarm-label">Family Time</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="21">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">9:00</span>
-            <span class="alarm-am">PM</span>
-          </div>
-          <div class="alarm-label">Wind Down</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="21">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">9:30</span>
-            <span class="alarm-am">PM</span>
-          </div>
-          <div class="alarm-label">Reading</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="22">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">10:00</span>
-            <span class="alarm-am">PM</span>
-          </div>
-          <div class="alarm-label">Bedtime Prep</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="22">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">10:30</span>
-            <span class="alarm-am">PM</span>
-          </div>
-          <div class="alarm-label">Bedtime</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
-
-      <div class="alarm-row" data-hour="23">
-        <div class="alarm-left">
-          <div>
-            <span class="alarm-time">11:00</span>
-            <span class="alarm-am">PM</span>
-          </div>
-          <div class="alarm-label">Late Night</div>
-        </div>
-        <div class="switch"><div class="switch-knob"></div></div>
-      </div>
+    <div class="start-button-container">
+      <button id="start" disabled>Start Experiment</button>
     </div>
 
-    <div class="dial-container">
-      <div class="dial" id="dial">
-        <div class="dial-am-label">
-          <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="5"></circle>
-            <line x1="12" y1="1" x2="12" y2="3"></line>
-            <line x1="12" y1="21" x2="12" y2="23"></line>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-            <line x1="1" y1="12" x2="3" y2="12"></line>
-            <line x1="21" y1="12" x2="23" y2="12"></line>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-          </svg>
-          AM
-        </div>
-        <div class="dial-pm-label">
-          <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          </svg>
-          PM
-        </div>
-      </div>
-      <div class="dial-pointer"></div>
+    <div id="results-container" style="display:none;">
+      <h2>Results</h2>
+      <table id="results-table">
+        <thead><tr><th>PID</th><th>Trial</th><th>Tech</th><th>Len</th><th>Pos</th><th>Rep</th><th>Time(ms)</th><th>Errors</th><th>Mental</th><th>Target</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <button id="download-csv">Download CSV</button>
     </div>
   </div>
+</div>
 
-  <script src="script.js"></script>
+<script>
+const state = { trials: [], idx: 0, results: [], participantId: '' };
+const mulberry32 = s => { let a=s>>>0; return()=>(a+=0x6D2B79F5,a^=a>>>15,a=Math.imul(a,a|1),a^=a+Math.imul(a^a>>>7,a|61),((a^a>>>14)>>>0)/4294967296); };
+
+// Generate trials
+document.getElementById('gen').onclick = () => {
+  const reps = parseInt(document.getElementById('reps').value)||1;
+  const seed = document.getElementById('seed').value.trim()==='' ? Math.random()*4294967295 : +document.getElementById('seed').value;
+  const rng = mulberry32(seed);
+
+  const conditions = [];
+  ['Quick Panel','Scroll'].forEach(tech=>[10,20,30].forEach(len=>['Top','Middle','Bottom'].forEach(pos=>conditions.push({tech,len,pos}))));
+
+  const all = [];
+  conditions.forEach(c=>{for(let i=1;i<=reps;i++)all.push({...c,rep:i});});
+
+  const blocks = {'Quick Panel':[],'Scroll':[]};
+  all.forEach(t=>blocks[t.tech].push(t));
+
+  const ordered = [];
+  ['Quick Panel','Scroll'].forEach(tech=>{
+    const b = blocks[tech];
+    for(let i=b.length-1;i>0;i--){
+      const j=Math.floor(rng()*(i+1));
+      [b[i],b[j]]=[b[j],b[i]];
+    }
+    ordered.push(...b);
+  });
+
+  state.trials = ordered; 
+  state.idx=0; 
+  state.results=[];
+  state.participantId = document.getElementById('pid').value;
+  
+  const tbody = document.querySelector('#trial-table tbody');
+  tbody.innerHTML=''; 
+  state.trials.forEach((t,i)=>{ 
+    const tr=document.createElement('tr'); 
+    tr.innerHTML=`<td>${i+1}</td><td>${t.tech}</td><td>${t.len}</td><td>${t.pos}</td><td>${t.rep}</td>`; 
+    tbody.appendChild(tr); 
+  });
+
+  document.getElementById('trial-table-container').style.display='block';
+  document.getElementById('start').disabled=false;
+  alert(`Generated ${state.trials.length} trials`);
+};
+
+// Start → redirect to experiment.html with trial data
+document.getElementById('start').onclick = () => {
+  // Store trial configuration in sessionStorage
+  sessionStorage.setItem('experimentTrials', JSON.stringify(state.trials));
+  sessionStorage.setItem('participantId', state.participantId);
+  
+  // Redirect to experiment.html
+  window.location.href = 'experiment.html';
+};
+
+// Results display
+function showResults(){
+  const tbody = document.querySelector('#results-table tbody');
+  tbody.innerHTML = '';
+  
+  state.results.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${r.participant}</td>
+      <td>${r.trial}</td>
+      <td>${r.technique}</td>
+      <td>${r.list_length}</td>
+      <td>${r.target_position}</td>
+      <td>${r.rep}</td>
+      <td>${r.completion_time_ms}</td>
+      <td>${r.errors}</td>
+      <td>${r.mental_effort}</td>
+      <td>${r.target_time}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// CSV Download
+document.getElementById('download-csv').onclick = () => {
+  const headers = ['Participant_ID','Trial','Technique','List_Length','Target_Position','Rep','Completion_Time_ms','Errors','Mental_Effort','Target_Time'];
+  const rows = state.results.map(r => [
+    r.participant, r.trial, r.technique, r.list_length, r.target_position, r.rep,
+    r.completion_time_ms, r.errors, r.mental_effort, r.target_time
+  ]);
+  
+  const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `alarm_study_${state.participantId}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+</script>
 </body>
 </html>
