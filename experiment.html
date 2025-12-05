@@ -129,6 +129,39 @@
       return pool;
     })();
 
+    // Build alarms for current trial and refresh dial
+    function buildAlarmList(trial, targetIdx) {
+      const list = alarms.slice(0, trial.len);
+      dom.scroll.innerHTML = '';
+
+      list.forEach((a, i) => {
+        const { time, ap } = fmt.time(a);
+        const isTarget = i === targetIdx;
+        const row = document.createElement('div');
+        row.className = 'alarm-row' + (isTarget ? ' target-row' : '');
+        row.dataset.h = a.h;
+        row.innerHTML = `
+          <div class="alarm-left">
+            <div><span class="alarm-time">${time}</span><span class="alarm-am">${ap}</span></div>
+            <div class="alarm-label">${isTarget ? 'Target alarm — turn off' : a.label}</div>
+          </div>
+          <div class="switch${isTarget ? '' : ' off'}"><div class="switch-knob"></div></div>
+        `;
+        dom.scroll.appendChild(row);
+      });
+
+      const rowCount = document.querySelectorAll('.alarm-row').length;
+      console.log('Built alarm list for trial', trial.trialNo ?? 'practice', 'rows=', rowCount);
+      if (rowCount === 0) {
+        console.error('❌ Alarm list build failed; not proceeding');
+        return;
+      }
+
+      if (window.alarmDial) {
+        window.alarmDial.refresh();
+      }
+    }
+
     // ============ UTILS ============
     const fmt = {
       time: (a) => {
@@ -262,40 +295,14 @@
         document.getElementById('header-subtitle').textContent = `${blockInfo} • Trial ${store.idx + 1} of ${store.trials.length} • ${store.trial.tech}${isPractice}`;
       }
 
-      dom.scroll.innerHTML = '';
-      console.log('Building alarm rows for', store.trial.len, 'alarms...');
-      console.log('Alarm list slice(0, len):', list);
-      
-      if (list.length === 0) {
-        console.error('❌ Alarm list is empty! Trial.len:', store.trial.len);
-        dom.scroll.innerHTML = '<div style="padding: 20px; color: red;">No alarms generated. Check trial configuration.</div>';
-        return;
-      }
-      
-      list.forEach((a, i) => {
-        const { time, ap } = fmt.time(a);
-        const isTarget = i === tIdx;
-        const row = document.createElement('div');
-        row.className = 'alarm-row' + (isTarget ? ' target-row' : '');
-        row.dataset.h = a.h;
-        row.innerHTML = `
-          <div class="alarm-left">
-            <div><span class="alarm-time">${time}</span><span class="alarm-am">${ap}</span></div>
-            <div class="alarm-label">${isTarget ? 'Target alarm — turn off' : a.label}</div>
-          </div>
-          <div class="switch${isTarget ? '' : ' off'}"><div class="switch-knob"></div></div>
-        `;
-        dom.scroll.appendChild(row);
-      });
-      console.log('✓ Alarm rows created:', document.querySelectorAll('.alarm-row').length);
+      buildAlarmList(store.trial, tIdx);
 
       const useDial = store.trial.tech === 'Radial Clock-Wheel';
       console.log('Dial display:', useDial ? 'VISIBLE' : 'HIDDEN', '(Technique:', store.trial.tech + ')');
       dom.dial.style.display = useDial ? 'block' : 'none';
       if (window.alarmDial) {
         window.alarmDial.setActive(useDial);
-        window.alarmDial.refresh();
-        console.log('✓ Dial refreshed, active:', useDial);
+        console.log('✓ Dial active:', useDial);
       }
 
       const t = fmt.time(store.target);

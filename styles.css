@@ -304,9 +304,9 @@ body {
   height: 20px;
   background: #666;
   left: 50%;
-  top: 10px;
+  top: 0;
   margin-left: -1.5px;
-  transform-origin: 50% 150px;
+  transform-origin: 50% 160px; /* center of 320px dial */
   opacity: 0;
   transition: opacity 0.3s ease-out 0.1s;
 }
@@ -318,8 +318,8 @@ body {
   font-size: 16px;
   font-weight: 600;
   left: 50%;
-  top: 35px;
-  transform-origin: 50% 125px;
+  top: 20px;
+  transform-origin: 50% 150px; /* center-aligned to dial radius */
   width: 28px;
   text-align: center;
   margin-left: -14px;
@@ -328,15 +328,15 @@ body {
   transition: opacity 0.3s ease-out 0.1s;
 }
 
-/* Triangular pointer aimed into the dial (points left) */
+/* Triangular pointer snug to dial edge, pointing into the dial (rightward tip) */
 .dial-pointer {
   position: absolute;
   width: 0;
   height: 0;
   border-top: 12px solid transparent;
   border-bottom: 12px solid transparent;
-  border-right: 16px solid #ff9f0a; /* point left */
-  right: 8px; /* keep fully visible inside container */
+  border-left: 16px solid #ff9f0a; /* point right */
+  right: -6px; /* tuck next to dial edge */
   top: 50%;
   transform: translateY(-50%);
   z-index: 15;

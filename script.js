@@ -96,9 +96,6 @@ function resetDialToFirstAlarm() {
   dial.style.transform = `rotate(${currentRotation}deg)`;
 }
 
-refreshAlarmRows();
-resetDialToFirstAlarm();
-
 // Function to calculate which hour is pointed at
 function getPointedHour() {
   // Pointer is fixed at 90° (right edge of dial container)
