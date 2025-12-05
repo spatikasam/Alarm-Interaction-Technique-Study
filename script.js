@@ -160,6 +160,12 @@ dialContainer.addEventListener('pointerdown', (e) => {
   e.preventDefault();
   e.stopPropagation();
   
+  // Lock page scroll during dial interaction
+  const phoneElement = document.querySelector('.phone');
+  if (phoneElement) {
+    phoneElement.style.overflowY = 'hidden';
+  }
+  
   // Clear any pending close timeout
   if (closeTimeout) {
     clearTimeout(closeTimeout);
@@ -219,6 +225,12 @@ document.addEventListener('pointerup', (e) => {
     isDragging = false;
     dialContainer.releasePointerCapture(e.pointerId);
     
+    // Unlock page scroll after dial interaction ends
+    const phoneElement = document.querySelector('.phone');
+    if (phoneElement) {
+      phoneElement.style.overflowY = 'auto';
+    }
+    
     // Immediately allow outside interactions to close dial
     isDialControlled = false;
     
@@ -238,6 +250,24 @@ dialContainer.addEventListener('wheel', (e) => {
     e.preventDefault();
   }
 }, { passive: false });
+
+// Prevent touch scrolling on dial during interaction
+dialContainer.addEventListener('touchmove', (e) => {
+  if (isDragging || dialActive) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+// Also prevent scroll on the whole phone element during dial use
+const phoneElement = document.querySelector('.phone');
+if (phoneElement) {
+  phoneElement.addEventListener('touchmove', (e) => {
+    // Only prevent if we're actively dragging the dial
+    if (isDragging && dialActive) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+}
 
 // Alarm list starts at top, dial should reflect what's centered
 // No automatic scroll on page load

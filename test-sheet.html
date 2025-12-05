@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sheet Data Transfer Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #007aff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #0051d5;
+    }
+    button:active {
+      background: #003da3;
+    }
+    .status {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      display: none;
+    }
+    .status.success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #6ee7b7;
+      display: block;
+    }
+    .status.error {
+      background: #fee2e2;
+      color: #7f1d1d;
+      border: 1px solid #fca5a5;
+      display: block;
+    }
+    .status.loading {
+      background: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #93c5fd;
+      display: block;
+    }
+    .console {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 12px;
+      border-radius: 6px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 20px;
+      line-height: 1.5;
+    }
+    .console-line {
+      margin-bottom: 4px;
+    }
+    .console-line.success { color: #89d185; }
+    .console-line.error { color: #f48771; }
+    .console-line.info { color: #9cdcfe; }
+    .console-line.warn { color: #ce9178; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Sheet Data Transfer Test</h1>
+    <p style="color: #666; margin-bottom: 20px;">Test if your Google Apps Script is receiving data correctly</p>
+    
+    <div class="form-group">
+      <label>Participant ID</label>
+      <input id="pid" type="text" value="TEST-001" placeholder="e.g., P001">
+    </div>
+    
+    <div class="form-group">
+      <label>Technique</label>
+      <select id="technique">
+        <option value="Scroll">Scroll</option>
+        <option value="Radial Clock-Wheel">Radial Clock-Wheel</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label>Mental Effort (0-100)</label>
+      <input id="effort" type="number" min="0" max="100" value="50">
+    </div>
+    
+    <div class="form-group">
+      <label>Error Count</label>
+      <input id="errors" type="number" min="0" value="0">
+    </div>
+    
+    <button onclick="sendTestData()">🚀 Send Test Data</button>
+    
+    <div id="status" class="status"></div>
+    
+    <div class="console" id="console"></div>
+  </div>
+
+  <script>
+    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyD_2E9oY5yyM3PeA6OBS0ArmAN_HLSMb5gPhBuPErkZm74mD-0HlrzG9Ia0JqGwk3M/exec';
+    
+    function log(message, type = 'info') {
+      const console = document.getElementById('console');
+      const line = document.createElement('div');
+      line.className = `console-line ${type}`;
+      line.textContent = message;
+      console.appendChild(line);
+      console.scrollTop = console.scrollHeight;
+    }
+    
+    function showStatus(message, type) {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = `status ${type}`;
+    }
+    
+    async function sendTestData() {
+      const status = document.getElementById('status');
+      const console = document.getElementById('console');
+      console.innerHTML = ''; // Clear previous logs
+      
+      log('🧪 Starting test...', 'info');
+      log('📤 Creating test payload...', 'info');
+      
+      const testData = {
+        participantId: document.getElementById('pid').value,
+        technique: document.getElementById('technique').value,
+        listLength: 10,
+        targetPosition: 'Top',
+        blockNo: 1,
+        trialNo: 1,
+        startTime: new Date(Date.now() - 30000).toISOString(),
+        endTime: new Date().toISOString(),
+        durationMs: 30000,
+        mentalEffort: parseInt(document.getElementById('effort').value),
+        errorCount: parseInt(document.getElementById('errors').value),
+        targetTime: '3:30 PM',
+        isPractice: false
+      };
+      
+      log(`✅ Payload created:`, 'success');
+      log(JSON.stringify(testData, null, 2), 'info');
+      log('', 'info');
+      log(`📍 Posting to: ${SHEET_URL}`, 'info');
+      
+      showStatus('⏳ Sending data...', 'loading');
+      
+      try {
+        log('🔄 Fetch request initiated...', 'info');
+        
+        const r = await fetch(SHEET_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(testData),
+          mode: 'no-cors'
+        });
+        
+        log(`✅ Response received`, 'success');
+        log(`   Status: ${r.status}`, 'info');
+        log(`   Type: ${r.type}`, 'info');
+        log(`   OK: ${r.ok}`, 'info');
+        
+        if (r.type === 'opaque') {
+          log('✅ Opaque response (expected for no-cors)', 'success');
+          log('', 'info');
+          log('🎉 Data transfer successful!', 'success');
+          log('Check your Google Sheet - a new row should appear in ~5 seconds', 'success');
+          showStatus('✅ Test successful! Check your Google Sheet.', 'success');
+        } else {
+          const text = await r.text();
+          log(`Response body: ${text}`, 'info');
+          if (r.ok) {
+            log('✅ Data received by sheet', 'success');
+            showStatus('✅ Test successful!', 'success');
+          } else {
+            throw new Error(`HTTP ${r.status}: ${text}`);
+          }
+        }
+      } catch (e) {
+        log(`❌ Error: ${e.message}`, 'error');
+        log(`Error type: ${e.constructor.name}`, 'error');
+        showStatus(`❌ Error: ${e.message}`, 'error');
+      }
+    }
+    
+    // Log initial info
+    log('🧪 Test utility ready', 'info');
+    log(`Sheet URL: ${SHEET_URL}`, 'info');
+    log('Fill in the form and click "Send Test Data" to begin', 'info');
+  </script>
+</body>
+</html>

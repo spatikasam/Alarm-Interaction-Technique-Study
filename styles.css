@@ -7,6 +7,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  overflow: hidden;
 }
 
 .phone {
@@ -218,9 +219,9 @@ body {
 }
 
 /* DIAL drawer */
-/* FIXED: Changed from fixed to absolute for proper trial flow, adjusted top for phone layout */
+/* Fixed position so dial doesn't move when scrolling the alarm list */
 .dial-container {
-  position: absolute;
+  position: fixed;
   left: -130px;       /* peek out ~190px (59% of 320px) on the left */
   top: 220px;         /* position relative to phone content (after header + banner) */
   width: 330px;       /* Extended slightly to show pointer */

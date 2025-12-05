@@ -73,7 +73,7 @@
         <div class="slider-labels">
           <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
         </div>
-        <button id="effort-submit" class="pill-btn" onclick="console.log('✅ ONCLICK FIRED'); return false;">Submit rating</button>
+        <button id="effort-submit" class="pill-btn">Submit rating</button>
       </div>
     </div>
     
@@ -712,21 +712,28 @@ Technique: ${store.trial.tech}`;
       
       console.log('📤 Posting trial data to sheet...');
       console.log('   Row data:', row);
+      console.log('   SHEET_URL:', SHEET_URL);
       
-      dom.note.textContent = 'Saving…';
       try {
         const payload = JSON.stringify(row);
         console.log('   Payload size:', payload.length, 'bytes');
-        console.log('   URL:', SHEET_URL);
         
         const r = await fetch(SHEET_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: payload
+          body: payload,
+          mode: 'no-cors'
         });
         
+        console.log('   Fetch completed');
         console.log('   Response status:', r.status);
         console.log('   Response ok:', r.ok);
+        console.log('   Response type:', r.type);
+        
+        if (r.type === 'opaque') {
+          console.log('✅ Data sent (opaque response - expected for no-cors)');
+          return; // Success for no-cors requests
+        }
         
         const responseText = await r.text();
         console.log('   Response body:', responseText);
@@ -736,14 +743,10 @@ Technique: ${store.trial.tech}`;
         }
         
         console.log('✅ Data successfully posted to sheet!');
-        dom.note.textContent = 'Saved to Sheet';
-        setTimeout(() => { dom.note.textContent = 'Finish the trial, rate effort, then tap Next.'; }, 1800);
       } catch (e) {
         console.error('❌ Sheet error:', e);
         console.error('   Error message:', e.message);
-        console.error('   Error type:', e.constructor.name);
-        dom.note.textContent = 'Save failed (kept locally)';
-        setTimeout(() => { dom.note.textContent = 'Finish the trial, rate effort, then tap Next.'; }, 2500);
+        console.error('   Full error:', e);
       }
     }
 
