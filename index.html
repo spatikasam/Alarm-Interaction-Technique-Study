@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Scroll vs Quick Panel – Alarm Study</title>
+<title>Scroll vs Radial Clock-Wheel – Alarm Study</title>
 <style>
   :root { --blue:#007aff; --red:#ff3b30; --green:#34c759; }
   * { box-sizing:border-box; margin:0; padding:0; }
@@ -143,6 +143,12 @@
     font-size:16px;
     padding:14px 32px;
   }
+
+  #load-results {
+    margin-top:10px;
+    background:#3a3a3c;
+    color:#fff;
+  }
 </style>
 </style>
 </head>
@@ -150,7 +156,7 @@
 
 <div class="phone">
   <div class="container">
-    <h1>Alarm Study<br><small>Scroll vs Quick Panel</small></h1>
+    <h1>Alarm Study<br><small>Scroll vs Radial Clock-Wheel</small></h1>
 
     <div class="config">
       <div>
@@ -186,6 +192,7 @@
         <thead><tr><th>PID</th><th>Trial</th><th>Tech</th><th>Len</th><th>Pos</th><th>Rep</th><th>Time(ms)</th><th>Errors</th><th>Mental</th><th>Target</th></tr></thead>
         <tbody></tbody>
       </table>
+      <button id="load-results">Load latest results</button>
       <button id="download-csv">Download CSV</button>
     </div>
   </div>
@@ -202,16 +209,16 @@ document.getElementById('gen').onclick = () => {
   const rng = mulberry32(seed);
 
   const conditions = [];
-  ['Quick Panel','Scroll'].forEach(tech=>[10,20,30].forEach(len=>['Top','Middle','Bottom'].forEach(pos=>conditions.push({tech,len,pos}))));
+  ['Radial Clock-Wheel','Scroll'].forEach(tech=>[10,20,30].forEach(len=>['Top','Middle','Bottom'].forEach(pos=>conditions.push({tech,len,pos}))));
 
   const all = [];
   conditions.forEach(c=>{for(let i=1;i<=reps;i++)all.push({...c,rep:i});});
 
-  const blocks = {'Quick Panel':[],'Scroll':[]};
+  const blocks = {'Radial Clock-Wheel':[],'Scroll':[]};
   all.forEach(t=>blocks[t.tech].push(t));
 
   const ordered = [];
-  ['Quick Panel','Scroll'].forEach(tech=>{
+  ['Radial Clock-Wheel','Scroll'].forEach(tech=>{
     const b = blocks[tech];
     for(let i=b.length-1;i>0;i--){
       const j=Math.floor(rng()*(i+1));
@@ -271,6 +278,16 @@ function showResults(){
   });
 }
 
+function loadStoredResults() {
+  const storedSession = JSON.parse(sessionStorage.getItem('experimentResults') || '[]');
+  const storedLocal = JSON.parse(localStorage.getItem('experimentResults') || '[]');
+  const stored = storedSession.length ? storedSession : storedLocal;
+  if (!stored.length) return;
+  state.results = stored;
+  showResults();
+  document.getElementById('results-container').style.display='block';
+}
+
 // CSV Download
 document.getElementById('download-csv').onclick = () => {
   const headers = ['Participant_ID','Trial','Technique','List_Length','Target_Position','Rep','Completion_Time_ms','Errors','Mental_Effort','Target_Time'];
@@ -288,6 +305,11 @@ document.getElementById('download-csv').onclick = () => {
   a.click();
   URL.revokeObjectURL(url);
 };
+
+document.getElementById('load-results').onclick = loadStoredResults;
+
+// auto-load stored results on page visit
+loadStoredResults();
 </script>
 </body>
 </html>

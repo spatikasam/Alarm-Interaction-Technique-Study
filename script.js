@@ -2,7 +2,7 @@ const dial = document.getElementById('dial');
 const dialContainer = document.querySelector('.dial-container');
 const dragHandle = document.getElementById('dragHandle');
 const alarmsScroll = document.getElementById('alarmsScroll');
-const alarmRows = document.querySelectorAll('.alarm-row');
+let alarmRows = [];
 
 // Create dial ticks and numbers (24 hours on clock)
 // AM/PM divider is vertical (left/right) rotated -90deg
@@ -47,6 +47,11 @@ let initialRotation = 0;  // Will be set based on first alarm
 let isDrawerOpen = false;
 let closeTimeout = null;
 let isDialControlled = false;  // True when dial is being actively manipulated
+let dialActive = true;         // Allow disabling dial for scroll-only trials
+
+function refreshAlarmRows() {
+  alarmRows = Array.from(document.querySelectorAll('.alarm-row'));
+}
 
 // Get the first alarm's hour to set initial dial position
 function getFirstAlarmHour() {
@@ -64,13 +69,15 @@ function getRotationForHour(hourIndex) {
   return 90 - (hourIndex * 15);
 }
 
-// Set initial rotation based on first alarm
-const firstAlarmHour = getFirstAlarmHour();
-initialRotation = getRotationForHour(firstAlarmHour);
-currentRotation = initialRotation;
+function resetDialToFirstAlarm() {
+  const firstAlarmHour = getFirstAlarmHour();
+  initialRotation = getRotationForHour(firstAlarmHour);
+  currentRotation = initialRotation;
+  dial.style.transform = `rotate(${currentRotation}deg)`;
+}
 
-// Apply initial dial rotation
-dial.style.transform = `rotate(${currentRotation}deg)`;
+refreshAlarmRows();
+resetDialToFirstAlarm();
 
 // Function to calculate which hour is pointed at
 function getPointedHour() {
@@ -119,6 +126,7 @@ function scrollToHour(hourIndex) {
 
 // Start drag when hovering over the dial container (peeking portion)
 dialContainer.addEventListener('pointerdown', (e) => {
+  if (!dialActive) return;
   isDragging = true;
   isDialControlled = true;
   lastHapticHour = null;  // Reset haptic tracking
@@ -142,6 +150,7 @@ dialContainer.addEventListener('pointerdown', (e) => {
 });
 
 document.addEventListener('pointermove', (e) => {
+  if (!dialActive) return;
   if (!isDragging) return;
   
   const deltaY = e.clientY - startY;
@@ -180,6 +189,7 @@ document.addEventListener('pointermove', (e) => {
 });
 
 document.addEventListener('pointerup', (e) => {
+  if (!dialActive) return;
   if (isDragging) {
     isDragging = false;
     dialContainer.releasePointerCapture(e.pointerId);
@@ -203,6 +213,7 @@ document.addEventListener('pointerup', (e) => {
 // Close dial when user manually scrolls the alarm list
 let scrollTimeout;
 alarmsScroll.addEventListener('scroll', () => {
+  if (!dialActive) return;
   // Only close if user is manually scrolling (not dial-controlled)
   if (isDrawerOpen && !isDialControlled && !isDragging) {
     clearTimeout(scrollTimeout);
@@ -221,6 +232,7 @@ alarmsScroll.addEventListener('scroll', () => {
 
 // Also close dial immediately when user touches the alarm list area
 alarmsScroll.addEventListener('pointerdown', (e) => {
+  if (!dialActive) return;
   if (isDrawerOpen && !isDialControlled) {
     dialContainer.classList.remove('open');
     isDrawerOpen = false;
@@ -235,6 +247,7 @@ alarmsScroll.addEventListener('pointerdown', (e) => {
 
 // Close dial when tapping outside
 document.addEventListener('pointerdown', (e) => {
+  if (!dialActive) return;
   if (isDrawerOpen && !isDragging) {
     // Check if click is actually on the dial (not just the container)
     const dialElement = dial;
@@ -266,10 +279,32 @@ document.addEventListener('pointerdown', (e) => {
 });
 
 // Toggle switches on click
-document.querySelectorAll('.switch').forEach(switchEl => {
-  switchEl.addEventListener('click', (e) => {
-    e.stopPropagation();
-    switchEl.classList.toggle('off');
-  });
+// Toggle switches with event delegation so dynamically built lists still work
+alarmsScroll.addEventListener('click', (e) => {
+  const switchEl = e.target.closest('.switch');
+  if (!switchEl) return;
+  e.stopPropagation();
+  switchEl.classList.toggle('off');
 });
+
+// Expose lightweight helpers so the experiment flow can rebuild alarms
+window.alarmDial = {
+  refresh: () => {
+    refreshAlarmRows();
+    resetDialToFirstAlarm();
+  },
+  setActive: (active) => {
+    dialActive = !!active;
+    if (!dialActive) {
+      // Close and reset when dial is disabled
+      dialContainer.classList.remove('open');
+      isDrawerOpen = false;
+      if (closeTimeout) {
+        clearTimeout(closeTimeout);
+        closeTimeout = null;
+      }
+      resetDialToFirstAlarm();
+    }
+  }
+};
 

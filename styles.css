@@ -77,13 +77,64 @@ body {
 
 .alarms-scroll {
   position: absolute;
-  top: 104px;
-  bottom: 0;
+  top: 152px;
+  bottom: 120px;
   left: 0;
   right: 0;
   overflow-y: auto;
   padding-bottom: 40px;
   z-index: 5;
+}
+
+.trial-banner {
+  position: absolute;
+  top: 64px;
+  left: 0;
+  right: 0;
+  padding: 12px 20px;
+  background: #0c0c0c;
+  border-top: 0.5px solid #1f1f1f;
+  border-bottom: 0.5px solid #1f1f1f;
+  z-index: 6;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: #d8d8d8;
+}
+
+.trial-footer {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 24px;
+  z-index: 7;
+}
+
+.pill-btn {
+  width: 100%;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ff9f0a, #ffcc00);
+  color: #000;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+}
+
+.footer-note {
+  margin-top: 8px;
+  text-align: center;
+  color: #9f9f9f;
+  font-size: 12px;
+  min-height: 18px;
+}
+
+.target-row {
+  background: #0f0f0f;
+  border-left: 3px solid #ffcc00;
 }
 
 .alarm-row {
@@ -319,4 +370,61 @@ body {
 /* drag handle over list */
 .drag-handle {
   display: none;
+}
+
+.hidden { display: none !important; }
+
+.trial-modal {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  padding: 20px;
+}
+
+.trial-modal-content {
+  width: 100%;
+  max-width: 320px;
+  background: #1c1c1e;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.55);
+}
+
+.trial-modal-content h2 {
+  margin-bottom: 8px;
+  font-size: 20px;
+  color: #fff;
+}
+
+.trial-modal-content p {
+  margin-bottom: 16px;
+  color: #d1d1d1;
+  line-height: 1.4;
+  font-size: 14px;
+}
+
+.modal-steps {
+  margin: 0 0 16px 18px;
+  color: #cfcfcf;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.modal-steps li { margin-bottom: 6px; }
+
+#effort-slider {
+  width: 100%;
+  margin: 10px 0 6px 0;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  color: #8e8e93;
+  font-size: 12px;
+  margin-bottom: 12px;
 }

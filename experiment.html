@@ -32,7 +32,7 @@
           <div class="alarm-label">Early Start</div>
         </div>
         <div class="switch"><div class="switch-knob"></div></div>
-      </div>
+    </div>
 
       <div class="alarm-row" data-hour="5">
         <div class="alarm-left">
@@ -324,8 +324,258 @@
       </div>
       <div class="dial-pointer"></div>
     </div>
+
+    <div id="trial-modal" class="trial-modal hidden">
+      <div class="trial-modal-content">
+        <h2 id="modal-title">Target alarm</h2>
+        <p id="modal-body">Turn off the target alarm.</p>
+        <ul class="modal-steps">
+          <li>Note the target alarm time below.</li>
+          <li>Use the shown technique to find and turn it off.</li>
+          <li>Only turn off that alarm; others count as errors.</li>
+        </ul>
+        <button id="modal-start" class="pill-btn">Begin trial</button>
+      </div>
+    </div>
+
+    <div id="effort-modal" class="trial-modal hidden">
+      <div class="trial-modal-content">
+        <h2>Mental effort</h2>
+        <p>How mentally demanding was this task? (0 = very low, 100 = very high)</p>
+        <input id="effort-slider" type="range" min="0" max="100" value="50" />
+        <div class="slider-labels">
+          <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+        </div>
+        <button id="effort-submit" class="pill-btn">Submit rating</button>
+      </div>
+    </div>
   </div>
 
   <script src="script.js"></script>
+  <script>
+  (() => {
+    // Google Sheet Web App endpoint for saving results
+    const SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwYw0VQ6o14x13y8nxoD_Pjf9ue4-Ptx6ZBvKX-9ccDMTgcMkkqcW2F5gPJ9jAcn_WG/exec';
+
+    const storedTrials = JSON.parse(sessionStorage.getItem('experimentTrials') || '[]');
+    const participantId = sessionStorage.getItem('participantId') || 'P000';
+    const storedResults = JSON.parse(sessionStorage.getItem('experimentResults') || '[]');
+    const storedResultsPersistent = JSON.parse(localStorage.getItem('experimentResults') || '[]');
+    const fallbackTrials = [
+      { tech: 'Radial Clock-Wheel', len: 10, pos: 'Top', rep: 1 },
+      { tech: 'Scroll', len: 10, pos: 'Bottom', rep: 1 }
+    ];
+
+    const state = {
+      trials: storedTrials.length ? storedTrials : fallbackTrials,
+      idx: 0,
+      participant: participantId,
+      currentTarget: null,
+      results: storedResults.length ? storedResults : storedResultsPersistent,
+      currentErrors: 0,
+      trialActive: false,
+      trialStart: 0,
+      pendingResult: null
+    };
+
+    const alarmsScroll = document.getElementById('alarmsScroll');
+    const dialContainer = document.querySelector('.dial-container');
+    const trialMeta = document.getElementById('trial-meta');
+    const trialTech = document.getElementById('trial-tech');
+    const nextBtn = document.getElementById('next-trial');
+    const modal = document.getElementById('trial-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalBody = document.getElementById('modal-body');
+    const modalStart = document.getElementById('modal-start');
+    const effortModal = document.getElementById('effort-modal');
+    const effortSlider = document.getElementById('effort-slider');
+    const effortSubmit = document.getElementById('effort-submit');
+
+    function buildAlarmPool(count = 30) {
+      const pool = [];
+      let minutes = 300; // start at 5:00 AM
+      for (let i = 0; i < count; i++) {
+        const hour = Math.floor(minutes / 60) % 24;
+        const minute = minutes % 60;
+        pool.push({ hour, minute, label: `Alarm ${String(i + 1).padStart(2, '0')}` });
+        minutes += 35; // spaced so lists have varied AM/PM coverage
+      }
+      return pool;
+    }
+
+    const alarmPool = buildAlarmPool(30);
+
+    function formatTimeParts(alarm) {
+      const h12 = ((alarm.hour + 11) % 12) + 1;
+      const ampm = alarm.hour < 12 ? 'AM' : 'PM';
+      const mm = alarm.minute.toString().padStart(2, '0');
+      return { time: `${h12}:${mm}`, suffix: ampm };
+    }
+
+    function targetIndexForPosition(pos, len) {
+      if (pos === 'Top') return 0;
+      if (pos === 'Bottom') return Math.max(len - 1, 0);
+      return Math.floor(len / 2);
+    }
+
+    function renderTrial() {
+      const trial = state.trials[state.idx];
+      const alarms = alarmPool.slice(0, trial.len);
+      const targetIndex = targetIndexForPosition(trial.pos, alarms.length);
+      state.currentTarget = alarms[targetIndex];
+      state.currentErrors = 0;
+      state.trialActive = false;
+      state.pendingResult = null;
+
+      trialMeta.textContent = `Trial ${state.idx + 1} of ${state.trials.length}`;
+      trialTech.textContent = `${trial.tech} · ${trial.len} alarms · Target: ${trial.pos}`;
+
+      alarmsScroll.innerHTML = '';
+      alarms.forEach((alarm, idx) => {
+        const { time, suffix } = formatTimeParts(alarm);
+        const row = document.createElement('div');
+        row.className = 'alarm-row' + (idx === targetIndex ? ' target-row' : '');
+        row.dataset.hour = alarm.hour;
+        row.innerHTML = `
+          <div class="alarm-left">
+            <div>
+              <span class="alarm-time">${time}</span>
+              <span class="alarm-am">${suffix}</span>
+            </div>
+            <div class="alarm-label">${idx === targetIndex ? 'Target alarm — turn off' : alarm.label}</div>
+          </div>
+          <div class="switch${idx === targetIndex ? '' : ' off'}"><div class="switch-knob"></div></div>
+        `;
+        alarmsScroll.appendChild(row);
+      });
+
+      const useDial = trial.tech === 'Radial Clock-Wheel';
+      dialContainer.style.display = useDial ? 'block' : 'none';
+      if (window.alarmDial) {
+        window.alarmDial.setActive(useDial);
+        window.alarmDial.refresh();
+      }
+
+      showModal(trial, formatTimeParts(state.currentTarget));
+      updateNextButtonLabel();
+      nextBtn.disabled = true; // disabled until effort rating is captured
+    }
+
+    function showModal(trial, targetParts) {
+      modalTitle.textContent = `Target alarm: ${targetParts.time} ${targetParts.suffix}`;
+      modalBody.textContent = `Technique: ${trial.tech}. Position: ${trial.pos}. Turn off this alarm when the trial starts.`;
+      modal.classList.remove('hidden');
+    }
+
+    function showEffortModal() {
+      effortSlider.value = 50;
+      effortModal.classList.remove('hidden');
+    }
+
+    function updateNextButtonLabel() {
+      const last = state.idx === state.trials.length - 1;
+      nextBtn.textContent = last ? 'Finish trials' : 'Next trial';
+    }
+
+    modalStart.onclick = () => {
+      modal.classList.add('hidden');
+      state.trialActive = true;
+      state.trialStart = performance.now();
+    };
+
+    effortSubmit.onclick = () => {
+      if (!state.pendingResult) return;
+      state.pendingResult.mental_effort = parseInt(effortSlider.value, 10);
+      state.results.push(state.pendingResult);
+      const serialized = JSON.stringify(state.results);
+      sessionStorage.setItem('experimentResults', serialized);
+      localStorage.setItem('experimentResults', serialized);
+      effortModal.classList.add('hidden');
+      nextBtn.disabled = false;
+      updateNextButtonLabel();
+    };
+
+    nextBtn.onclick = () => {
+      if (state.idx < state.trials.length - 1) {
+        state.idx += 1;
+        renderTrial();
+      } else {
+        nextBtn.disabled = true;
+        nextBtn.textContent = 'All trials completed';
+        alert('All trials completed. Return to the setup page to configure a new order.');
+      }
+    };
+
+    function toCsv(rows) {
+      const headers = ['Participant_ID','Trial','Technique','List_Length','Target_Position','Rep','Completion_Time_ms','Errors','Mental_Effort','Target_Time'];
+      const body = rows.map(r => [r.participant,r.trial,r.technique,r.list_length,r.target_position,r.rep,r.completion_time_ms,r.errors,r.mental_effort ?? '',r.target_time]);
+      return [headers, ...body].map(r => r.join(',')).join('\n');
+    }
+
+    function downloadFile(name, mime, content) {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Quick exports during testing
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'E' && e.altKey) {
+        downloadFile('alarm_trials_results.csv', 'text/csv', toCsv(state.results));
+      }
+      if (e.key === 'J' && e.altKey) {
+        downloadFile('alarm_trials_results.json', 'application/json', JSON.stringify(state.results, null, 2));
+      }
+    });
+
+    alarmsScroll.addEventListener('click', (e) => {
+      const switchEl = e.target.closest('.switch');
+      if (!switchEl) return;
+      e.stopImmediatePropagation();
+      const row = switchEl.closest('.alarm-row');
+      const isTarget = row && row.classList.contains('target-row');
+
+      // Toggle visual state manually
+      const willTurnOff = !switchEl.classList.contains('off');
+      if (willTurnOff) {
+        switchEl.classList.add('off');
+      } else {
+        switchEl.classList.remove('off');
+      }
+
+      if (!state.trialActive) return;
+
+      if (isTarget && willTurnOff) {
+        // Only count completion the first time target is turned off
+        state.trialActive = false;
+        const elapsedMs = Math.round(performance.now() - state.trialStart);
+        const trial = state.trials[state.idx];
+        const { time, suffix } = formatTimeParts(state.currentTarget);
+        state.pendingResult = {
+          participant: state.participant,
+          trial: state.idx + 1,
+          technique: trial.tech,
+          list_length: trial.len,
+          target_position: trial.pos,
+          rep: trial.rep,
+          completion_time_ms: elapsedMs,
+          errors: state.currentErrors,
+          mental_effort: null,
+          target_time: `${time} ${suffix}`
+        };
+        showEffortModal();
+      } else if (!isTarget && willTurnOff) {
+        // Count as an error when the participant turns off a non-target alarm
+        state.currentErrors += 1;
+      }
+    });
+
+    renderTrial();
+  })();
+  </script>
 </body>
 </html>
