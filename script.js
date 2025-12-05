@@ -112,7 +112,7 @@ document.addEventListener('pointermove', (e) => {
 document.addEventListener('pointerup', (e) => {
   if (isDragging) {
     isDragging = false;
-    dragHandle.releasePointerCapture(e.pointerId);
+    dialContainer.releasePointerCapture(e.pointerId);
     
     // Close drawer after a delay
     setTimeout(() => {
