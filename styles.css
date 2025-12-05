@@ -426,3 +426,64 @@ body {
   font-size: 12px;
   margin-bottom: 12px;
 }
+
+/* Timer display */
+.timer-display {
+  position: absolute;
+  top: 100px;
+  right: 16px;
+  background: #2c2c2e;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  min-width: 50px;
+  text-align: center;
+  z-index: 100;
+}
+
+.timer-display.warning {
+  background: #ff9f0a;
+  color: #000;
+}
+
+.timer-display.timeout {
+  background: #ff3b30;
+  color: #fff;
+  animation: pulse 0.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Break overlay */
+.break-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.break-overlay.hidden {
+  display: none;
+}
+
+.break-countdown {
+  font-size: 48px;
+  color: #007aff;
+  font-weight: 700;
+}

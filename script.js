@@ -62,13 +62,22 @@ let dialActive = true;         // Allow disabling dial for scroll-only trials
 
 function refreshAlarmRows() {
   alarmRows = Array.from(document.querySelectorAll('.alarm-row'));
+  console.log('✓ Refreshed alarm rows:', alarmRows.length, 'rows found');
+  if (alarmRows.length === 0) {
+    console.warn('⚠ No alarm rows found in DOM');
+  } else {
+    console.log('  First alarm hour:', alarmRows[0].dataset.h, 'Last:', alarmRows[alarmRows.length - 1].dataset.h);
+  }
 }
 
 // Get the first alarm's hour to set initial dial position
 function getFirstAlarmHour() {
   if (alarmRows.length > 0) {
-    return parseInt(alarmRows[0].dataset.hour);
+    const h = parseInt(alarmRows[0].dataset.h);
+    console.log('  First alarm hour value:', h);
+    return h;
   }
+  console.warn('  ⚠ No alarm rows available, using default 6');
   return 6;  // Default to 6 AM if no alarms
 }
 
@@ -117,8 +126,13 @@ function scrollToHour(hourIndex) {
   let closestRow = null;
   let closestDiff = Infinity;
   
+  if (alarmRows.length === 0) {
+    console.warn('  ⚠ scrollToHour called but no alarm rows available');
+    return;
+  }
+  
   alarmRows.forEach((row) => {
-    const rowHour = parseInt(row.dataset.hour);
+    const rowHour = parseInt(row.dataset.h);
     const diff = Math.abs(rowHour - hourIndex);
     
     // Also consider wrapping (e.g., hour 23 is close to hour 0)

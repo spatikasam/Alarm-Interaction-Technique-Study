@@ -23,12 +23,6 @@
       <div class="header-plus">+</div>
     </div>
 
-    <!-- FIXED: Added trial-banner for proper positioning -->
-    <div class="trial-banner" id="trial-banner">
-      <div id="trial-meta">Trial 1 of 1</div>
-      <div id="trial-tech">Technique: Radial Clock-Wheel</div>
-    </div>
-
     <div class="alarms-scroll" id="alarmsScroll"></div>
 
     <div class="dial-container">
@@ -81,6 +75,16 @@
         <button id="effort-submit" class="pill-btn">Submit rating</button>
       </div>
     </div>
+    
+    <!-- Timer Display -->
+    <div class="timer-display hidden" id="timer-display">--</div>
+    
+    <!-- Break Overlay -->
+    <div class="break-overlay hidden" id="break-overlay">
+      <div>Take a break</div>
+      <div class="break-countdown" id="break-countdown">60</div>
+      <div style="font-size: 14px; color: #8e8e93;">Resuming soon...</div>
+    </div>
   </div>
 
   <script src="script.js"></script>
@@ -100,7 +104,10 @@
       errors: 0,
       active: false,
       startTime: 0,
-      pending: null
+      pending: null,
+      timerInterval: null,
+      breakInterval: null,
+      timedOut: false
     };
 
     if (!store.trials.length) {
@@ -138,40 +145,126 @@
     const dom = {
       scroll: document.getElementById('alarmsScroll'),
       dial: document.querySelector('.dial-container'),
-      next: document.getElementById('next-trial'),
-      note: document.querySelector('.footer-note'),
-      meta: document.getElementById('trial-meta'),
-      tech: document.getElementById('trial-tech'),
       modal: document.getElementById('trial-modal'),
       mTitle: document.getElementById('modal-title'),
       mBody: document.getElementById('modal-body'),
       mStart: document.getElementById('modal-start'),
       effort: document.getElementById('effort-modal'),
       slider: document.getElementById('effort-slider'),
-      submit: document.getElementById('effort-submit')
+      submit: document.getElementById('effort-submit'),
+      timerDisplay: document.getElementById('timer-display'),
+      breakOverlay: document.getElementById('break-overlay'),
+      breakCountdown: document.getElementById('break-countdown')
     };
+    
+    // Alias for backwards compatibility
+    dom.next = dom.submit;
+    dom.note = document.querySelector('.footer-note') || { textContent: '' };
+
+    // ============ TIMER & BREAK UTILITIES ============
+    function startTimer() {
+      const TIMEOUT_MS = 30000; // 30 seconds
+      store.timedOut = false;
+      store.startTime = performance.now();
+      
+      if (store.timerInterval) clearInterval(store.timerInterval);
+      
+      store.timerInterval = setInterval(() => {
+        const elapsed = Math.round((performance.now() - store.startTime) / 1000);
+        const remaining = Math.max(0, 30 - elapsed);
+        
+        if (dom.timerDisplay) {
+          dom.timerDisplay.classList.remove('hidden');
+          dom.timerDisplay.textContent = remaining + 's';
+          dom.timerDisplay.classList.remove('warning', 'timeout');
+          
+          if (remaining <= 5 && remaining > 0) {
+            dom.timerDisplay.classList.add('warning');
+          } else if (remaining === 0) {
+            dom.timerDisplay.classList.add('timeout');
+          }
+        }
+        
+        // Hard timeout at 30s
+        if (elapsed >= 30) {
+          clearInterval(store.timerInterval);
+          store.timedOut = true;
+          console.log('Trial timed out at 30s');
+          
+          // Force trial end
+          store.active = false;
+          dom.modal.classList.add('hidden');
+          store.errors += 1; // Count as error if still active
+          setTimeout(finalizeTrial, 100);
+        }
+      }, 100);
+    }
+    
+    function stopTimer() {
+      if (store.timerInterval) {
+        clearInterval(store.timerInterval);
+        store.timerInterval = null;
+      }
+      if (dom.timerDisplay) {
+        dom.timerDisplay.classList.add('hidden');
+      }
+    }
+    
+    function showBreak(durationSec, isBlockBreak = false) {
+      return new Promise(resolve => {
+        const label = isBlockBreak ? `Take a ${durationSec}s break` : 'Trial complete';
+        if (dom.breakOverlay) {
+          dom.breakOverlay.classList.remove('hidden');
+          dom.breakOverlay.innerHTML = `
+            <div>${isBlockBreak ? 'Take a break' : 'Brief pause'}</div>
+            <div class="break-countdown" id="break-countdown">${durationSec}</div>
+            <div style="font-size: 14px; color: #8e8e93;">Resuming soon...</div>
+          `;
+        }
+        
+        let remaining = durationSec;
+        if (store.breakInterval) clearInterval(store.breakInterval);
+        
+        store.breakInterval = setInterval(() => {
+          remaining--;
+          const countdown = document.getElementById('break-countdown');
+          if (countdown) countdown.textContent = remaining;
+          
+          if (remaining <= 0) {
+            clearInterval(store.breakInterval);
+            if (dom.breakOverlay) dom.breakOverlay.classList.add('hidden');
+            resolve();
+          }
+        }, 1000);
+      });
+    }
 
     // ============ RENDER ============
     function render() {
+      console.log('Render called, idx:', store.idx, 'trials:', store.trials.length);
       if (store.idx >= store.trials.length) return done();
 
       store.trial = store.trials[store.idx];
+      console.log('Current trial:', store.trial);
+      
       const list = alarms.slice(0, store.trial.len);
+      console.log('Alarm list length:', list.length);
+      
       const tIdx = fmt.target(store.trial.pos, list.length);
       store.target = list[tIdx];
       store.errors = 0;
       store.active = false;
       store.pending = null;
 
-      dom.meta.textContent = `Trial ${store.idx + 1} of ${store.trials.length}`;
-      dom.tech.textContent = `${store.trial.tech} · ${store.trial.len} alarms · Target: ${store.trial.pos}`;
-      
-      // Update header subtitle with rep and trial info
+      // Update header subtitle with block and trial info
+      const isPractice = store.trial.isPractice ? ' (Practice)' : '';
+      const blockInfo = store.trial.isPractice ? 'Practice' : `Block ${store.trial.blockNo}`;
       if (document.getElementById('header-subtitle')) {
-        document.getElementById('header-subtitle').textContent = `Rep ${store.trial.rep} • Trial ${store.idx + 1} of ${store.trials.length} • ${store.trial.tech}`;
+        document.getElementById('header-subtitle').textContent = `${blockInfo} • Trial ${store.idx + 1} of ${store.trials.length} • ${store.trial.tech}${isPractice}`;
       }
 
       dom.scroll.innerHTML = '';
+      console.log('Building alarm rows for', store.trial.len, 'alarms...');
       list.forEach((a, i) => {
         const { time, ap } = fmt.time(a);
         const isTarget = i === tIdx;
@@ -187,12 +280,15 @@
         `;
         dom.scroll.appendChild(row);
       });
+      console.log('Alarm rows created:', document.querySelectorAll('.alarm-row').length);
 
       const useDial = store.trial.tech === 'Radial Clock-Wheel';
+      console.log('Dial display:', useDial ? 'VISIBLE' : 'HIDDEN', '(Technique:', store.trial.tech + ')');
       dom.dial.style.display = useDial ? 'block' : 'none';
       if (window.alarmDial) {
         window.alarmDial.setActive(useDial);
         window.alarmDial.refresh();
+        console.log('✓ Dial refreshed, active:', useDial);
       }
 
       const t = fmt.time(store.target);
@@ -200,15 +296,16 @@
       dom.mBody.textContent = `Technique: ${store.trial.tech}. Position: ${store.trial.pos}. Turn off this alarm when the trial starts.`;
       dom.modal.classList.remove('hidden');
 
-      dom.next.disabled = true;
-      dom.next.textContent = store.idx === store.trials.length - 1 ? 'Finish trials' : 'Next trial';
+      dom.submit.disabled = true;
+      dom.submit.textContent = store.idx === store.trials.length - 1 ? 'Finish trials' : 'Submit rating';
     }
 
     // ============ EVENTS ============
     dom.mStart.onclick = () => {
       dom.modal.classList.add('hidden');
       store.active = true;
-      store.startTime = performance.now();
+      store.trialStartIso = new Date().toISOString(); // Capture ISO timestamp at start
+      startTimer(); // Start 30s countdown
     };
 
     dom.scroll.addEventListener('click', (e) => {
@@ -224,23 +321,23 @@
       if (isTarget && wasOff) {
         store.active = false;
         const ms = Math.round(performance.now() - store.startTime);
-        const startIso = new Date(store.startTime).toISOString();
-        const endIso = new Date(Date.now()).toISOString();
+        const endIso = new Date().toISOString();
         const t = fmt.time(store.target);
 
         store.pending = {
-          participant: store.pid,
+          participantId: store.pid,
           technique: store.trial.tech,
-          list_length: store.trial.len,
-          target_position: store.trial.pos,
-          rep: store.trial.rep,
-          trial: store.idx + 1,
-          start_time: startIso,
-          end_time: endIso,
-          duration_ms: ms,
-          errors: store.errors,
-          mental_effort: null,
-          target_time: t.full
+          listLength: store.trial.len,
+          targetPosition: store.trial.pos,
+          blockNo: store.trial.blockNo,
+          trialNo: store.trial.trialNo,
+          startTime: store.trialStartIso,
+          endTime: endIso,
+          durationMs: ms,
+          errorCount: store.errors,
+          mentalEffort: null,
+          targetTime: t.full,
+          isPractice: store.trial.isPractice || false
         };
 
         dom.slider.value = 50;
@@ -250,27 +347,68 @@
       }
     });
 
-    dom.submit.onclick = () => {
-      if (!store.pending) return;
+    dom.submit.onclick = async () => {
+      // If in effort mode, submit effort and show next button
+      if (dom.effort.classList.contains('hidden') === false) {
+        if (!store.pending) return;
 
-      store.pending.mental_effort = parseInt(dom.slider.value, 10);
-      store.results.push(store.pending);
+        store.pending.mentalEffort = parseInt(dom.slider.value, 10);
+        
+        // Only log non-practice trials
+        if (!store.pending.isPractice) {
+          store.results.push(store.pending);
+          const s = JSON.stringify(store.results);
+          sessionStorage.setItem('experimentResults', s);
+          localStorage.setItem('experimentResults', s);
+        } else {
+          console.log('Practice trial completed (not logged):', store.pending);
+        }
 
-      const s = JSON.stringify(store.results);
-      sessionStorage.setItem('experimentResults', s);
-      localStorage.setItem('experimentResults', s);
+        console.log('Result schema:', store.pending);
+        
+        // Only post to sheet if logged trial
+        if (!store.pending.isPractice) {
+          post(store.pending);
+        }
 
-      dom.effort.classList.add('hidden');
-      dom.next.disabled = false;
-
-      console.log('Result schema:', store.pending);
-      post(store.pending);
-    };
-
-    dom.next.onclick = () => {
+        // Hide effort modal and prepare button for next trial
+        dom.effort.classList.add('hidden');
+        dom.submit.textContent = 'Next trial';
+        dom.submit.id = 'next-trial-btn';
+        return;
+      }
+      
+      // If we reach here, it's the "Next trial" button
+      dom.submit.disabled = true;
+      
+      // 3s inter-trial break
+      await showBreak(3, false);
+      
       store.idx += 1;
-      store.idx < store.trials.length ? render() : done();
+      
+      // Check for block break (after trials 22 and 40)
+      const isBlockComplete = store.idx === 22 || store.idx === 40; // After first and second logged block
+      if (isBlockComplete && store.idx < store.trials.length) {
+        await showBreak(60, true); // 1-minute block break
+      }
+      
+      if (store.idx < store.trials.length) {
+        // Reset button for next trial
+        dom.submit.textContent = 'Submit rating';
+        dom.submit.id = 'effort-submit';
+        render();
+      } else {
+        done();
+      }
     };
+
+    function finalizeTrial() {
+      stopTimer();
+      store.active = false;
+      dom.modal.classList.add('hidden');
+      dom.effort.classList.remove('hidden');
+      dom.submit.disabled = false;
+    }
 
     // ============ SHEET ============
     async function post(row) {
@@ -294,8 +432,8 @@
 
     // ============ FINISH ============
     function done() {
-      dom.next.disabled = true;
-      dom.next.textContent = 'All trials completed';
+      dom.submit.disabled = true;
+      dom.submit.textContent = 'All trials completed';
       alert('All trials completed. Return to the setup page to configure a new order.');
     }
 
@@ -309,8 +447,8 @@
     function exp(fmt) {
       let content, name, type;
       if (fmt === 'csv') {
-        const h = ['ParticipantID','Technique','ListLength','TargetPosition','RepNo','TrialNo','StartTime','EndTime','Duration_ms','MentalEffort','ErrorCount','TargetTime'];
-        const b = store.results.map(r => [r.participant,r.technique,r.list_length,r.target_position,r.rep,r.trial,r.start_time,r.end_time,r.duration_ms,r.mental_effort ?? '',r.errors,r.target_time]);
+        const h = ['ParticipantID','Technique','ListLength','TargetPosition','BlockNo','TrialNo','StartTime','EndTime','Duration_ms','MentalEffort','ErrorCount','TargetTime'];
+        const b = store.results.map(r => [r.participantId,r.technique,r.listLength,r.targetPosition,r.blockNo,r.trialNo,r.startTime,r.endTime,r.durationMs,r.mentalEffort ?? '',r.errorCount,r.targetTime]);
         content = [h, ...b].map(r => r.join(',')).join('\n');
         name = 'results.csv';
         type = 'text/csv';
@@ -329,13 +467,23 @@
     }
 
     // ============ INIT ============
+    if (store.trials.length === 0) {
+      alert('No trials found. Please return to index.html and generate trials first.');
+      console.error('No trials in sessionStorage');
+      window.location.href = 'index.html';
+      return;
+    }
+    
     render();
 
-    // ✓ VERIFICATION: All critical fixes complete
-    console.log('✓ All fixes applied');
-    console.log('✓ Trials loaded:', store.trials.length, 'trials');
+    // ✓ VERIFICATION: 3-block factorial design
+    const practiceCount = store.trials.filter(t => t.isPractice).length;
+    const loggedCount = store.trials.filter(t => !t.isPractice).length;
+    console.log('✓ 3-Block Factorial Design loaded');
+    console.log('✓ Trials:', practiceCount, 'practice (not logged) +', loggedCount, 'logged = ', store.trials.length, 'total');
     console.log('✓ Participant:', store.pid);
-    console.log('✓ Expected total:', store.trials.length, 'trials (2 reps × 3 lengths × 3 positions × 2 techniques)');
+    console.log('✓ Design: 3 blocks × 18 conditions (2 techniques × 3 lengths × 3 positions)');
+    console.log('✓ Schema: ParticipantID, Technique, ListLength, TargetPosition, BlockNo, TrialNo, StartTime, EndTime, Duration_ms, MentalEffort, ErrorCount, TargetTime');
     console.log('✓ Export shortcuts: Alt+E (CSV) | Alt+J (JSON)');
   })();
   </script>
