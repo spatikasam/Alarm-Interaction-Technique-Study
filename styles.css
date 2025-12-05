@@ -451,36 +451,47 @@ body {
   justify-content: space-between;
   align-items: center;
   z-index: 100;
+  gap: 12px;
 }
 
 .target-reminder {
-  background: rgba(0,0,0,0.85);
-  padding: 8px 12px;
+  background: rgba(28, 28, 30, 0.95);
+  padding: 6px 10px;
   border-radius: 8px;
-  border: 1px solid #333;
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .target-label {
   font-size: 9px;
-  color: rgba(142, 142, 147, 0.6);
+  font-weight: 600;
+  color: rgba(142, 142, 147, 0.7);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
   margin-bottom: 2px;
+  line-height: 1;
 }
 
 .target-time {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: #fff;
+  line-height: 1.2;
 }
 
 .timer-display {
   background: #2c2c2e;
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: #fff;
-  min-width: 50px;
+  min-width: 54px;
   text-align: center;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .timer-display.warning {
