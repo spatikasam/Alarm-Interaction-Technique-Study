@@ -54,10 +54,7 @@
       <div class="trial-modal-content">
         <h2 id="modal-title">Practice Trial 1</h2>
         <p id="modal-body">Turn off the target alarm.</p>
-        <ul class="modal-steps">
-          <li>Use the shown technique to find and turn it off.</li>
-          <li>Only turn off that alarm; others count as errors.</li>
-        </ul>
+        <p class="modal-steps" style="margin-top: 12px; color: #8e8e93;">Only turn off that alarm; others count as errors.</p>
         <button id="modal-start" class="pill-btn">Begin trial</button>
       </div>
     </div>
@@ -74,12 +71,13 @@
       </div>
     </div>
     
-    <div class="target-reminder hidden" id="target-reminder" style="position: fixed; left: 20px; top: 100px; background: rgba(0,0,0,0.85); padding: 8px 12px; border-radius: 8px; font-size: 13px; color: #fff; z-index: 100; border: 1px solid #333;">
-      <div style="font-size: 10px; color: #8e8e93; margin-bottom: 2px;">TARGET</div>
-      <div id="target-time-reminder" style="font-weight: 600;">--</div>
+    <div class="trial-info-bar hidden" id="trial-info-bar">
+      <div class="target-reminder">
+        <div class="target-label">TARGET</div>
+        <div id="target-time-reminder" class="target-time">--</div>
+      </div>
+      <div class="timer-display" id="timer-display">--</div>
     </div>
-    
-    <div class="timer-display hidden" id="timer-display">--</div>
     
     <div class="break-overlay hidden" id="break-overlay">
       <div>Short break</div>
@@ -171,7 +169,7 @@
       timerDisplay: document.getElementById('timer-display'),
       breakOverlay: document.getElementById('break-overlay'),
       breakCountdown: document.getElementById('break-countdown'),
-      targetReminder: document.getElementById('target-reminder'),
+      trialInfoBar: document.getElementById('trial-info-bar'),
       targetTimeReminder: document.getElementById('target-time-reminder')
     };
 
@@ -268,28 +266,28 @@ Technique: ${store.trial.tech}`;
       store.active = true;
       store.startTime = Date.now();
       
-      // Show target reminder
+      // Show target reminder and timer
       const t = fmt.time(store.target);
       dom.targetTimeReminder.textContent = t.full;
-      dom.targetReminder.classList.remove('hidden');
+      dom.trialInfoBar.classList.remove('hidden');
       
       startTimer();
     };
 
     function startTimer() {
       const TIMEOUT_MS = 30000; // 30 seconds
-      dom.timerDisplay.classList.remove('hidden');
-      let elapsed = 0;
+      const TOTAL_SECONDS = 30;
       
       store.timerInterval = setInterval(() => {
-        elapsed = Math.floor((Date.now() - store.startTime) / 1000);
-        dom.timerDisplay.textContent = `${elapsed}s`;
+        const elapsed = Math.floor((Date.now() - store.startTime) / 1000);
+        const remaining = Math.max(0, TOTAL_SECONDS - elapsed);
+        dom.timerDisplay.textContent = `${remaining}s`;
         
-        // Add warning color at 25s
-        if (elapsed >= 25 && elapsed < 30) {
+        // Add warning color at 5s remaining
+        if (remaining <= 5 && remaining > 0) {
           dom.timerDisplay.classList.add('warning');
         }
-        if (elapsed >= 30) {
+        if (remaining === 0) {
           dom.timerDisplay.classList.add('timeout');
         }
       }, 100);
@@ -310,7 +308,7 @@ Technique: ${store.trial.tech}`;
         clearTimeout(store.timeoutHandle);
         store.timeoutHandle = null;
       }
-      dom.timerDisplay.classList.add('hidden');
+      dom.trialInfoBar.classList.add('hidden');
       dom.timerDisplay.classList.remove('warning', 'timeout');
     }
 
@@ -389,7 +387,6 @@ Technique: ${store.trial.tech}`;
       stopTimer();
       store.active = false;
       dom.modal.classList.add('hidden');
-      dom.targetReminder.classList.add('hidden');
       
       // Skip effort rating for practice - go directly to next trial
       console.log(`Practice ${store.idx + 1} complete`);
