@@ -265,22 +265,43 @@ body {
   z-index: 2;
 }
 
-/* orange pointer - fixed in center of container, touching dial edge */
+/* orange pointer - pill body plus soft tip for rounded edges */
 .dial-pointer {
   position: absolute;
-  width: 28px;
-  height: 18px;
-  background: #ffcc00;
-  clip-path: polygon(0% 50%, 90% 8%, 100% 50%, 90% 92%);
+  width: 30px;
+  height: 20px;
   left: 159px;        /* touches dial edge (160px radius - 1px overlap) */
   top: 50%;
   transform: translateY(-50%);
   z-index: 15;
-  box-shadow: 0 0 12px rgba(255, 204, 0, 0.7);
   pointer-events: none;
-  border-radius: 0 9px 9px 0;
   opacity: 0;
   transition: opacity 0.25s ease-out;
+}
+
+.dial-pointer::before,
+.dial-pointer::after {
+  content: "";
+  position: absolute;
+  background: #ffcc00;
+}
+
+/* Rounded pill body */
+.dial-pointer::before {
+  inset: 0;
+  border-radius: 999px;
+  box-shadow: 0 0 12px rgba(255, 204, 0, 0.7);
+}
+
+/* Soft diamond tip for a gentle point */
+.dial-pointer::after {
+  width: 12px;
+  height: 12px;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(255, 204, 0, 0.5);
 }
 
 .dial-container.open .dial-pointer {
