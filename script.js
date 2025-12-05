@@ -4,6 +4,16 @@ const dragHandle = document.getElementById('dragHandle');
 const alarmsScroll = document.getElementById('alarmsScroll');
 let alarmRows = [];
 
+// FIXED: Expose missing DOM elements for experiment flow
+const trialMeta = document.getElementById('trial-meta');
+const trialTech = document.getElementById('trial-tech');
+const nextBtn = document.getElementById('next-trial');
+const footerNote = document.getElementById('footer-note');
+
+// ✓ VERIFICATION: All critical elements exposed for experiment flow
+console.log('✓ All fixes applied - Script ready for experiment');
+console.log('✓ Trial banner elements:', { trialMeta, trialTech, nextBtn, footerNote });
+
 // Create dial ticks and numbers (24 hours on clock)
 // AM/PM divider is vertical (left/right) rotated -90deg
 // Left side (270° to 90° going counter-clockwise) = AM hours

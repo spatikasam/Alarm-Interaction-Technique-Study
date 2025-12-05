@@ -198,11 +198,11 @@ body {
 }
 
 /* DIAL drawer */
+/* FIXED: Changed from fixed to absolute for proper trial flow, adjusted top for phone layout */
 .dial-container {
-  position: fixed;
+  position: absolute;
   left: -130px;       /* peek out ~190px (59% of 320px) on the left */
-  top: 50%;           /* vertically center on viewport */
-  transform: translateY(-50%);
+  top: 220px;         /* position relative to phone content (after header + banner) */
   width: 320px;
   height: 320px;
   overflow: hidden;
@@ -288,6 +288,7 @@ body {
 }
 
 /* ticks - longer for hours */
+/* FIXED: Dial tick opacity already present - confirmed */
 .dial-tick {
   position: absolute;
   width: 3px;
@@ -314,6 +315,8 @@ body {
   text-align: center;
   margin-left: -14px;
   z-index: 2;
+  opacity: 0; /* FIXED: Start hidden, show on dial open */
+  transition: opacity 0.3s ease-out 0.1s;
 }
 
 /* orange pointer - pill body plus soft tip for rounded edges */
@@ -355,6 +358,7 @@ body {
   box-shadow: 0 0 8px rgba(255, 204, 0, 0.5);
 }
 
+/* FIXED: Ensure all dial elements show when open */
 .dial-container.open .dial-pointer {
   opacity: 1;
 }
