@@ -7,6 +7,7 @@ let alarmRows = [];
 // FIXED: Expose missing DOM elements for experiment flow
 const trialMeta = document.getElementById('trial-meta');
 const trialTech = document.getElementById('trial-tech');
+const headerSubtitle = document.getElementById('header-subtitle');
 const nextBtn = document.getElementById('next-trial');
 const footerNote = document.getElementById('footer-note');
 

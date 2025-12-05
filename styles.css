@@ -67,6 +67,15 @@ body {
 }
 .header-left { font-size: 17px; color: #ff9f0a; cursor: default; }
 .header-title { font-size: 22px; font-weight: 600; }
+
+.header-subtitle {
+  font-size: 11px;
+  color: #8e8e93;
+  font-weight: 500;
+  margin-top: 2px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
 .header-plus { font-size: 30px; color: #ff9f0a; line-height: 1; cursor: default; }
 
 .instruction {

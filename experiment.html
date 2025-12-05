@@ -19,6 +19,7 @@
     <div class="header">
       <div class="header-left">Edit</div>
       <div class="header-title">Alarm</div>
+      <div class=\"header-subtitle\" id=\"header-subtitle\">Rep 1 • Trial 1 of 36 • Radial Clock-Wheel</div>
       <div class="header-plus">+</div>
     </div>
 
@@ -86,7 +87,7 @@
   <script>
   (() => {
     // ============ CONFIG ============
-    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwYw0VQ6o14x13y8nxoD_Pjf9ue4-Ptx6ZBvKX-9ccDMTgcMkkqcW2F5gPJ9jAcn_WG/exec';
+    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxM9ao9piJcGtvbph5AT_L0s65cDIkCssn0iWEDLHrF2TvLt2JI9cgle8ELBochlhji/exec';
 
     // ============ STATE ============
     const store = {
@@ -164,6 +165,11 @@
 
       dom.meta.textContent = `Trial ${store.idx + 1} of ${store.trials.length}`;
       dom.tech.textContent = `${store.trial.tech} · ${store.trial.len} alarms · Target: ${store.trial.pos}`;
+      
+      // Update header subtitle with rep and trial info
+      if (document.getElementById('header-subtitle')) {
+        document.getElementById('header-subtitle').textContent = `Rep ${store.trial.rep} • Trial ${store.idx + 1} of ${store.trials.length} • ${store.trial.tech}`;
+      }
 
       dom.scroll.innerHTML = '';
       list.forEach((a, i) => {
@@ -218,16 +224,20 @@
       if (isTarget && wasOff) {
         store.active = false;
         const ms = Math.round(performance.now() - store.startTime);
+        const startIso = new Date(store.startTime).toISOString();
+        const endIso = new Date(Date.now()).toISOString();
         const t = fmt.time(store.target);
 
         store.pending = {
           participant: store.pid,
-          trial: store.idx + 1,
           technique: store.trial.tech,
           list_length: store.trial.len,
           target_position: store.trial.pos,
           rep: store.trial.rep,
-          completion_time_ms: ms,
+          trial: store.idx + 1,
+          start_time: startIso,
+          end_time: endIso,
+          duration_ms: ms,
           errors: store.errors,
           mental_effort: null,
           target_time: t.full
@@ -253,6 +263,7 @@
       dom.effort.classList.add('hidden');
       dom.next.disabled = false;
 
+      console.log('Result schema:', store.pending);
       post(store.pending);
     };
 
@@ -298,8 +309,8 @@
     function exp(fmt) {
       let content, name, type;
       if (fmt === 'csv') {
-        const h = ['Participant_ID','Trial','Technique','List_Length','Target_Position','Rep','Completion_Time_ms','Errors','Mental_Effort','Target_Time'];
-        const b = store.results.map(r => [r.participant,r.trial,r.technique,r.list_length,r.target_position,r.rep,r.completion_time_ms,r.errors,r.mental_effort ?? '',r.target_time]);
+        const h = ['ParticipantID','Technique','ListLength','TargetPosition','RepNo','TrialNo','StartTime','EndTime','Duration_ms','MentalEffort','ErrorCount','TargetTime'];
+        const b = store.results.map(r => [r.participant,r.technique,r.list_length,r.target_position,r.rep,r.trial,r.start_time,r.end_time,r.duration_ms,r.mental_effort ?? '',r.errors,r.target_time]);
         content = [h, ...b].map(r => r.join(',')).join('\n');
         name = 'results.csv';
         type = 'text/csv';

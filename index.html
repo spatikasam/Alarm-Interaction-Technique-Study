@@ -164,13 +164,17 @@
         <input id="pid" value="P001">
       </div>
       <div>
-        <label>Trials per condition</label>
-        <input id="reps" type="number" value="2" min="1"> <!-- FIXED: Changed from 5 to 2 for 36 total trials (2×3×3×2) -->
+        <label>Participant block order</label>
+        <select id="block-order">
+          <option value="scroll-first">Scroll first, then Radial Clock-Wheel</option>
+          <option value="radial-first">Radial Clock-Wheel first, then Scroll</option>
+        </select>
       </div>
       <div>
         <label>Seed (optional)</label>
         <input id="seed" placeholder="random">
       </div>
+      <p style="font-size:12px; color:#8e8e93; margin-top:8px;">36 trials total (2 reps × 18 conditions • ~39 min)</p>
       <button id="gen">Generate Trial Order</button>
     </div>
 
@@ -189,7 +193,7 @@
     <div id="results-container" style="display:none;">
       <h2>Results</h2>
       <table id="results-table">
-        <thead><tr><th>PID</th><th>Trial</th><th>Tech</th><th>Len</th><th>Pos</th><th>Rep</th><th>Time(ms)</th><th>Errors</th><th>Mental</th><th>Target</th></tr></thead>
+        <thead><tr><th>PID</th><th>Tech</th><th>Len</th><th>Pos</th><th>Rep</th><th>Trial</th><th>Start</th><th>Duration_ms</th><th>Errors</th><th>Mental</th><th>Target</th></tr></thead>
         <tbody></tbody>
       </table>
       <button id="load-results">Load latest results</button>
@@ -242,7 +246,7 @@ document.getElementById('gen').onclick = () => {
 
   document.getElementById('trial-table-container').style.display='block';
   document.getElementById('start').disabled=false;
-  alert(`Generated ${state.trials.length} trials`);
+  alert(`Generated ${state.trials.length} trials (Block 1: 9 trials • Block 2: 9 trials)`);
 };
 
 // Start → redirect to experiment.html with trial data
@@ -264,12 +268,13 @@ function showResults(){
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${r.participant}</td>
-      <td>${r.trial}</td>
       <td>${r.technique}</td>
       <td>${r.list_length}</td>
       <td>${r.target_position}</td>
       <td>${r.rep}</td>
-      <td>${r.completion_time_ms}</td>
+      <td>${r.trial}</td>
+      <td>${r.start_time}</td>
+      <td>${r.duration_ms}</td>
       <td>${r.errors}</td>
       <td>${r.mental_effort}</td>
       <td>${r.target_time}</td>
@@ -290,10 +295,10 @@ function loadStoredResults() {
 
 // CSV Download
 document.getElementById('download-csv').onclick = () => {
-  const headers = ['Participant_ID','Trial','Technique','List_Length','Target_Position','Rep','Completion_Time_ms','Errors','Mental_Effort','Target_Time'];
+  const headers = ['ParticipantID','Technique','ListLength','TargetPosition','RepNo','TrialNo','StartTime','EndTime','Duration_ms','MentalEffort','ErrorCount','TargetTime'];
   const rows = state.results.map(r => [
-    r.participant, r.trial, r.technique, r.list_length, r.target_position, r.rep,
-    r.completion_time_ms, r.errors, r.mental_effort, r.target_time
+    r.participant, r.technique, r.list_length, r.target_position, r.rep, r.trial,
+    r.start_time, r.end_time, r.duration_ms, r.mental_effort, r.errors, r.target_time
   ]);
   
   const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
