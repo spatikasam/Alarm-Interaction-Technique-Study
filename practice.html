@@ -55,7 +55,6 @@
         <h2 id="modal-title">Practice Trial 1</h2>
         <p id="modal-body">Turn off the target alarm.</p>
         <ul class="modal-steps">
-          <li>Note the target alarm time below.</li>
           <li>Use the shown technique to find and turn it off.</li>
           <li>Only turn off that alarm; others count as errors.</li>
         </ul>
@@ -75,7 +74,7 @@
       </div>
     </div>
     
-    <div class="target-reminder hidden" id="target-reminder" style="position: fixed; left: 20px; top: 90px; background: rgba(0,0,0,0.85); padding: 8px 12px; border-radius: 8px; font-size: 13px; color: #fff; z-index: 100; border: 1px solid #333;">
+    <div class="target-reminder hidden" id="target-reminder" style="position: fixed; left: 20px; top: 100px; background: rgba(0,0,0,0.85); padding: 8px 12px; border-radius: 8px; font-size: 13px; color: #fff; z-index: 100; border: 1px solid #333;">
       <div style="font-size: 10px; color: #8e8e93; margin-bottom: 2px;">TARGET</div>
       <div id="target-time-reminder" style="font-weight: 600;">--</div>
     </div>
@@ -114,9 +113,37 @@
 
     const alarms = (() => {
       const pool = [];
-      const labs = ['Wake up', 'Meds', 'Gym', 'Meeting', 'Call Mom', 'Lunch', 'Dentist', 'Walk', 'Dinner', 'Read'];
+      const labs = [
+        'Wake up',      // 0 (12 AM)
+        'Night shift',  // 1 AM
+        'Early gym',    // 2 AM
+        'Airport',      // 3 AM
+        'Baking',       // 4 AM
+        'Morning run',  // 5 AM
+        'Meditation',   // 6 AM
+        'Breakfast',    // 7 AM
+        'Work start',   // 8 AM
+        'Meeting',      // 9 AM
+        'Coffee break', // 10 AM
+        'Team standup', // 11 AM
+        'Lunch',        // 12 PM
+        'Appointment',  // 1 PM
+        'Project review', // 2 PM
+        'Call client',  // 3 PM
+        'Gym class',    // 4 PM
+        'Pick up kids', // 5 PM
+        'Dinner prep',  // 6 PM
+        'Dinner',       // 7 PM
+        'Walk dog',     // 8 PM
+        'TV show',      // 9 PM
+        'Read',         // 10 PM
+        'Bedtime'       // 11 PM
+      ];
+      const minutes = [0, 30];
+      
       for (let h = 0; h < 24; h++) {
-        pool.push({ h, label: labs[h % labs.length] });
+        const min = minutes[Math.floor(Math.random() * minutes.length)];
+        pool.push({ h, min, label: labs[h] });
       }
       return pool;
     })();
@@ -125,7 +152,8 @@
       time: (a) => {
         const h12 = a.h === 0 ? 12 : a.h > 12 ? a.h - 12 : a.h;
         const ap = a.h < 12 ? 'AM' : 'PM';
-        return { time: `${h12}:00`, ap, full: `${h12}:00 ${ap}`, h: a.h };
+        const minStr = (a.min || 0).toString().padStart(2, '0');
+        return { time: `${h12}:${minStr}`, ap, full: `${h12}:${minStr} ${ap}`, h: a.h };
       },
       target: (pos, len) => pos === 'Top' ? 0 : pos === 'Bottom' ? Math.max(len - 1, 0) : Math.floor(len / 2)
     };
@@ -205,17 +233,19 @@
       dom.dial.style.display = useDial ? 'block' : 'none';
       if (window.alarmDial) {
         window.alarmDial.setActive(useDial);
-        // Open dial fully for Radial Clock-Wheel trials
+        // Open dial fully for Radial Clock-Wheel trials and lock rotation
         if (useDial) {
           const dialContainer = document.querySelector('.dial-container');
           if (dialContainer) {
             dialContainer.classList.add('open');
           }
+          window.alarmDial.setRotationLock(true);  // Lock rotation to prevent jitter
         } else {
           const dialContainer = document.querySelector('.dial-container');
           if (dialContainer) {
             dialContainer.classList.remove('open');
           }
+          window.alarmDial.setRotationLock(false);
         }
       }
 
@@ -286,18 +316,40 @@ Technique: ${store.trial.tech}`;
 
     document.addEventListener('click', (e) => {
       if (!store.active) return;
-      const row = e.target.closest('.alarm-row');
+      
+      // Check if clicking on a switch (toggle button)
+      const sw = e.target.closest('.switch');
+      if (!sw) return;
+      
+      const row = sw.closest('.alarm-row');
       if (!row) return;
 
       const clickH = +row.dataset.h;
-      console.log(`Clicked alarm at ${clickH}:00, target is ${store.target.h}:00`);
+      const wasOff = sw.classList.contains('off');
       
-      if (clickH === store.target.h) {
-        console.log('✅ Correct alarm! Moving to next trial...');
+      console.log(`Clicked alarm at ${clickH}:00, target is ${store.target.h}:00, wasOff: ${wasOff}`);
+      
+      // Toggle the switch
+      sw.classList.toggle('off');
+      
+      if (clickH === store.target.h && wasOff) {
+        console.log('✅ Correct alarm turned off! Moving to next trial...');
         finalizeTrial();
-      } else {
+      } else if (clickH !== store.target.h && wasOff) {
         store.errors++;
         console.log(`❌ Wrong alarm! Errors: ${store.errors}`);
+        
+        // Visual feedback for wrong alarm
+        row.style.backgroundColor = '#ff3b30';
+        row.style.transition = 'background-color 0.3s ease';
+        setTimeout(() => {
+          row.style.backgroundColor = '';
+        }, 800);
+        
+        // Vibrate if supported
+        if (navigator.vibrate) {
+          navigator.vibrate(200);
+        }
       }
     });
 

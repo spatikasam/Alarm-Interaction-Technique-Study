@@ -129,12 +129,37 @@
     // ============ ALARM POOL ============
     const alarms = (() => {
       const pool = [];
-      let mins = 300;
-      for (let i = 0; i < 30; i++) {
-        const h = Math.floor(mins / 60) % 24;
-        const m = mins % 60;
-        pool.push({ h, m, label: `Alarm ${String(i + 1).padStart(2, '0')}` });
-        mins += 35;
+      const labs = [
+        'Wake up',      // 0 (12 AM)
+        'Night shift',  // 1 AM
+        'Early gym',    // 2 AM
+        'Airport',      // 3 AM
+        'Baking',       // 4 AM
+        'Morning run',  // 5 AM
+        'Meditation',   // 6 AM
+        'Breakfast',    // 7 AM
+        'Work start',   // 8 AM
+        'Meeting',      // 9 AM
+        'Coffee break', // 10 AM
+        'Team standup', // 11 AM
+        'Lunch',        // 12 PM
+        'Appointment',  // 1 PM
+        'Project review', // 2 PM
+        'Call client',  // 3 PM
+        'Gym class',    // 4 PM
+        'Pick up kids', // 5 PM
+        'Dinner prep',  // 6 PM
+        'Dinner',       // 7 PM
+        'Walk dog',     // 8 PM
+        'TV show',      // 9 PM
+        'Read',         // 10 PM
+        'Bedtime'       // 11 PM
+      ];
+      const minutes = [0, 30];
+      
+      for (let h = 0; h < 24; h++) {
+        const min = minutes[Math.floor(Math.random() * minutes.length)];
+        pool.push({ h, min, label: labs[h] });
       }
       return pool;
     })();
@@ -143,19 +168,30 @@
     function buildAlarmList(trial, targetIdx) {
       const list = alarms.slice(0, trial.len);
       dom.scroll.innerHTML = '';
+      
+      // Randomly turn on 30-50% of alarms (not including target)
+      const numOn = Math.floor(trial.len * (0.3 + Math.random() * 0.2));
+      const onIndices = new Set();
+      while (onIndices.size < numOn) {
+        const randomIdx = Math.floor(Math.random() * trial.len);
+        if (randomIdx !== targetIdx) {
+          onIndices.add(randomIdx);
+        }
+      }
 
       list.forEach((a, i) => {
         const { time, ap } = fmt.time(a);
         const isTarget = i === targetIdx;
+        const isOn = isTarget || onIndices.has(i);
         const row = document.createElement('div');
-        row.className = 'alarm-row' + (isTarget ? ' target-row' : '');
+        row.className = 'alarm-row'; // No special highlighting for target
         row.dataset.h = a.h;
         row.innerHTML = `
           <div class="alarm-left">
             <div><span class="alarm-time">${time}</span><span class="alarm-am">${ap}</span></div>
-            <div class="alarm-label">${isTarget ? 'Target alarm — turn off' : a.label}</div>
+            <div class="alarm-label">${a.label}</div>
           </div>
-          <div class="switch${isTarget ? '' : ' off'}"><div class="switch-knob"></div></div>
+          <div class="switch${isOn ? '' : ' off'}"><div class="switch-knob"></div></div>
         `;
         dom.scroll.appendChild(row);
       });
@@ -175,10 +211,10 @@
     // ============ UTILS ============
     const fmt = {
       time: (a) => {
-        const h12 = ((a.h + 11) % 12) + 1;
+        const h12 = a.h === 0 ? 12 : a.h > 12 ? a.h - 12 : a.h;
         const ap = a.h < 12 ? 'AM' : 'PM';
-        const mm = a.m.toString().padStart(2, '0');
-        return { time: `${h12}:${mm}`, ap, full: `${h12}:${mm} ${ap}` };
+        const minStr = (a.min || a.m || 0).toString().padStart(2, '0');
+        return { time: `${h12}:${minStr}`, ap, full: `${h12}:${minStr} ${ap}`, h: a.h };
       },
       target: (pos, len) => pos === 'Top' ? 0 : pos === 'Bottom' ? Math.max(len - 1, 0) : Math.floor(len / 2)
     };
@@ -506,9 +542,13 @@
     }
 
     // ============ INIT ============
+    console.log('🔍 Checking sessionStorage for trials...');
+    console.log('  experimentTrials:', sessionStorage.getItem('experimentTrials') ? 'Found' : 'Missing');
+    console.log('  participantId:', sessionStorage.getItem('participantId') || 'Missing');
+    
     if (store.trials.length === 0) {
       alert('No trials found. Please return to index.html and generate trials first.');
-      console.error('No trials in sessionStorage');
+      console.error('❌ No trials in sessionStorage');
       window.location.href = 'index.html';
       return;
     }
@@ -520,6 +560,7 @@
     console.log('═══════════════════════════════════════════════');
     console.log(`✓ Loaded ${trialCount} logged trials (3 blocks × 18)`);
     console.log(`✓ Participant: ${store.pid}`);
+    console.log(`✓ First trial:`, store.trials[0]);
     console.log('═══════════════════════════════════════════════');
     console.log('📋 SEQUENCE:');
     console.log('  1. Block 1 (18 trials)');

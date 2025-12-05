@@ -234,15 +234,16 @@ body {
   width: 320px;
   height: 320px;
   border-radius: 50%;
-  background: rgba(26, 26, 26, 0.85);
-  box-shadow: 0 0 20px rgba(0,0,0,0.9);
-  border: 2px solid #333;
+  background: linear-gradient(135deg, rgba(28, 28, 30, 0.95), rgba(44, 44, 46, 0.95));
+  box-shadow: 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   transform-origin: 50% 50%;
-  transform: rotate(0deg);  /* 12 at top, 6 at bottom for proper AM/PM split */
-  pointer-events: none;       /* rotation via handle */
+  transform: rotate(0deg);
+  pointer-events: none;
+  backdrop-filter: blur(10px);
 }
 
-/* AM/PM semicircle divider - shaded PM half (right side through the 12s) */
+/* AM/PM semicircle divider - subtle shaded PM half */
 .dial::before {
   content: '';
   position: absolute;
@@ -250,84 +251,92 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: conic-gradient(from 90deg, transparent 0deg, transparent 90deg, rgba(0, 0, 0, 0) 90deg, rgba(0, 0, 0, 0) 270deg, transparent 270deg, transparent 360deg);
+  background: conic-gradient(from 90deg, rgba(255, 255, 255, 0.04) 0deg, rgba(255, 255, 255, 0.04) 90deg, rgba(0, 0, 0, 0.2) 90deg, rgba(0, 0, 0, 0.2) 270deg, rgba(255, 255, 255, 0.04) 270deg, rgba(255, 255, 255, 0.04) 360deg);
   pointer-events: none;
   border-radius: 50%;
-  transition: background 0.3s ease-out 0.1s;
-}
-
-.dial-container.open .dial::before {
-  background: conic-gradient(from 90deg, rgba(255, 255, 255, 0.12) 0deg, rgba(255, 255, 255, 0.12) 90deg, rgba(0, 0, 0, 0.35) 90deg, rgba(0, 0, 0, 0.35) 270deg, rgba(255, 255, 255, 0.12) 270deg, rgba(255, 255, 255, 0.12) 360deg);
 }
 
 /* AM label - in the middle of AM half (right side) */
 .dial-am-label {
   position: absolute;
   top: 50%;
-  right: 80px;
+  right: 70px;
   transform: translateY(-50%);
-  color: #666;
-  font-size: 16px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
   font-weight: 600;
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .label-icon {
-  width: 20px;
-  height: 20px;
-  stroke: #666;
+  width: 16px;
+  height: 16px;
+  stroke: rgba(255, 255, 255, 0.5);
+  opacity: 0.8;
 }
 
 /* PM label - in the middle of PM half (left side) */
 .dial-pm-label {
   position: absolute;
   top: 50%;
-  left: 80px;
+  left: 70px;
   transform: translateY(-50%) rotateZ(180deg);
-  color: #666;
-  font-size: 16px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
   font-weight: 600;
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* ticks - clean minimal style */
 .dial-tick {
   position: absolute;
-  width: 2px;
-  height: 12px;
-  background: rgba(255, 255, 255, 0.25);
+  width: 1.5px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.3);
   left: 50%;
-  top: 8px;
-  margin-left: -1px;
-  transform-origin: 50% 152px; /* center of 320px dial */
+  top: 10px;
+  margin-left: -0.75px;
+  transform-origin: 50% 150px;
   opacity: 0;
   transition: opacity 0.3s ease-out 0.1s;
-  border-radius: 1px;
+  border-radius: 2px;
+}
+
+.dial-container.open .dial-tick {
+  opacity: 1;
 }
 
 /* hour numbers - clean typography */
 .dial-number {
   position: absolute;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 16px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 15px;
   font-weight: 500;
   left: 50%;
-  top: 26px;
-  transform-origin: 50% 150px; /* center-aligned to dial radius */
-  width: 28px;
+  top: 28px;
+  transform-origin: 50% 148px;
+  width: 26px;
   text-align: center;
-  margin-left: -14px;
+  margin-left: -13px;
   z-index: 2;
   opacity: 0;
   transition: opacity 0.3s ease-out 0.1s;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.5px;
+  letter-spacing: 0;
+}
+
+.dial-container.open .dial-number {
+  opacity: 1;
 }
 
 /* Triangular pointer snug to dial edge, pointing into the dial (leftward tip) */

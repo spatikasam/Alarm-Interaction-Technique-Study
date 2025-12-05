@@ -58,6 +58,7 @@ let initialRotation = 0;  // Will be set based on first alarm
 let isDrawerOpen = false;
 let closeTimeout = null;
 let isDialControlled = false;  // True when dial is being actively manipulated
+let dialRotationLocked = false;  // Lock rotation for practice trials
 let dialActive = true;         // Allow disabling dial for scroll-only trials
 
 function refreshAlarmRows() {
@@ -148,7 +149,7 @@ function scrollToHour(hourIndex) {
 
 // Start drag when hovering over the dial container (peeking portion)
 dialContainer.addEventListener('pointerdown', (e) => {
-  if (!dialActive) return;
+  if (!dialActive || dialRotationLocked) return;
   isDragging = true;
   isDialControlled = true;
   lastHapticHour = null;  // Reset haptic tracking
@@ -172,7 +173,7 @@ dialContainer.addEventListener('pointerdown', (e) => {
 });
 
 document.addEventListener('pointermove', (e) => {
-  if (!dialActive) return;
+  if (!dialActive || dialRotationLocked) return;
   if (!isDragging) return;
   
   const deltaY = e.clientY - startY;
@@ -327,6 +328,9 @@ window.alarmDial = {
       }
       resetDialToFirstAlarm();
     }
+  },
+  setRotationLock: (locked) => {
+    dialRotationLocked = !!locked;
   }
 };
 
