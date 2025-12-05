@@ -312,13 +312,16 @@ Technique: ${store.trial.tech}`;
     }
 
     document.addEventListener('click', (e) => {
+      console.log('🖱️ Click detected, store.active:', store.active);
       if (!store.active) return;
       
       // Check if clicking on a switch (toggle button)
       const sw = e.target.closest('.switch');
+      console.log('  Switch element found:', !!sw);
       if (!sw) return;
       
       const row = sw.closest('.alarm-row');
+      console.log('  Alarm row found:', !!row);
       if (!row) return;
 
       const clickH = +row.dataset.h;
