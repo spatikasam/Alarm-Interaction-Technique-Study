@@ -41,13 +41,13 @@ for (let i = 0; i < 24; i++) {
 let isDragging = false;
 let startY = 0;
 let startRotation = 0;
-let currentRotation = -75;  // Start with pointer at 5 AM (first alarm in list)
+let currentRotation = 90;  // Start with pointer at 12 AM (hour 0)
 let isDrawerOpen = false;
 
 // Apply initial dial rotation
 dial.style.transform = `rotate(${currentRotation}deg)`;
 
-// Function to calculate which hour is pointed at (without scrolling)
+// Function to calculate which hour is pointed at
 function getPointedHour() {
   let pointerAngle = 90; // Pointer at right edge
   let dialRotation = currentRotation % 360;
@@ -57,13 +57,23 @@ function getPointedHour() {
   if (pointedAngle < 0) pointedAngle += 360;
   
   // Convert angle to 24-hour index (0-23)
-  // The dial positions hours at: 0° = 6 AM (i=6), 15° = 7 AM (i=7), etc.
-  // So at angle θ, the hour index i = θ/15 + 6
-  // But we need to account for 24-hour wrapping
+  // With initial rotation at 90°, pointer at 90° should equal hour 0 (12 AM)
+  // Formula: hour = (pointedAngle / 15 + 6) % 24
   let hourIndex = Math.round((pointedAngle / 15 + 6) % 24);
   if (hourIndex < 0) hourIndex += 24;
   
   return hourIndex;
+}
+
+// Function to scroll alarm list to show alarm for given hour
+function scrollToHour(hourIndex) {
+  let found = false;
+  alarmRows.forEach((row) => {
+    if (!found && parseInt(row.dataset.hour) === hourIndex) {
+      row.scrollIntoView({ behavior: 'auto', block: 'start' });
+      found = true;
+    }
+  });
 }
 
 // Start drag when hovering over the dial container (peeking portion)
@@ -91,7 +101,12 @@ document.addEventListener('pointermove', (e) => {
   // Apply rotation to dial
   dial.style.transform = `rotate(${currentRotation}deg)`;
   
-  // Dial updates but alarm list stays at top (no auto-scroll)
+  // Update alarm list scroll to reflect dial position
+  const pointedHour = getPointedHour();
+  scrollToHour(pointedHour);
+  
+  // Prevent default scrolling behavior
+  e.preventDefault();
 });
 
 document.addEventListener('pointerup', (e) => {
@@ -115,8 +130,8 @@ alarmsScroll.addEventListener('scroll', () => {
   if (isDrawerOpen) {
     dialContainer.classList.remove('open');
     isDrawerOpen = false;
-    // Reset dial rotation to initial position
-    currentRotation = -75;
+    // Reset dial rotation to initial position (12 AM)
+    currentRotation = 90;
     dial.style.transform = `rotate(${currentRotation}deg)`;
   }
 });
@@ -126,8 +141,11 @@ document.addEventListener('pointerdown', (e) => {
   if (isDrawerOpen && !dialContainer.contains(e.target)) {
     dialContainer.classList.remove('open');
     isDrawerOpen = false;
-    // Reset dial rotation to initial position
-    currentRotation = -75;
+    // Reset dial rotation to initial position (12 AM)
+    currentRotation = 90;
+    dial.style.transform = `rotate(${currentRotation}deg)`;
+  }
+});
     dial.style.transform = `rotate(${currentRotation}deg)`;
   }
 });
