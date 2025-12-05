@@ -41,7 +41,7 @@ for (let i = 0; i < 24; i++) {
 let isDragging = false;
 let startY = 0;
 let startRotation = 0;
-let currentRotation = 90;  // Start with pointer at 12 AM (hour 0)
+let currentRotation = 0;  // Start at 0° so hour 6 (6 AM at 90°) is at pointer
 let isDrawerOpen = false;
 let closeTimeout = null;
 let isDialScrolling = false;  // Track if dial is controlling the scroll
@@ -51,18 +51,23 @@ dial.style.transform = `rotate(${currentRotation}deg)`;
 
 // Function to calculate which hour is pointed at
 function getPointedHour() {
-  let pointerAngle = 90; // Pointer at right edge
-  let dialRotation = currentRotation % 360;
+  // Pointer is fixed at 90° (right edge of dial container)
+  const pointerAngle = 90;
   
-  // Calculate the angle the pointer is pointing to on the dial
+  // Normalize dial rotation to 0-360
+  let dialRotation = currentRotation % 360;
+  if (dialRotation < 0) dialRotation += 360;
+  
+  // Calculate the absolute angle on the dial that the pointer is pointing to
+  // When dial rotates clockwise (positive), it brings higher angles to the pointer
   let pointedAngle = (pointerAngle - dialRotation) % 360;
   if (pointedAngle < 0) pointedAngle += 360;
   
-  // Convert angle to 24-hour index (0-23)
-  // With initial rotation at 90°, pointer at 90° should equal hour 0 (12 AM)
-  // Formula: hour = (pointedAngle / 15 + 6) % 24
-  let hourIndex = Math.round((pointedAngle / 15 + 6) % 24);
-  if (hourIndex < 0) hourIndex += 24;
+  // Convert angle to hour index (0-23)
+  // Hour 0 is at 0°, hour 6 at 90°, hour 12 at 180°, hour 18 at 270°
+  let hourIndex = Math.round(pointedAngle / 15) % 24;
+  
+  console.log(`Dial rotation: ${currentRotation.toFixed(1)}°, Pointed angle: ${pointedAngle.toFixed(1)}°, Hour: ${hourIndex}`);
   
   return hourIndex;
 }
@@ -153,8 +158,8 @@ alarmsScroll.addEventListener('scroll', () => {
       clearTimeout(closeTimeout);
       closeTimeout = null;
     }
-    // Reset dial rotation to initial position (12 AM)
-    currentRotation = 90;
+    // Reset dial rotation to initial position (6 AM)
+    currentRotation = 0;
     dial.style.transform = `rotate(${currentRotation}deg)`;
   }
 });
@@ -169,8 +174,8 @@ document.addEventListener('pointerdown', (e) => {
       clearTimeout(closeTimeout);
       closeTimeout = null;
     }
-    // Reset dial rotation to initial position (12 AM)
-    currentRotation = 90;
+    // Reset dial rotation to initial position (6 AM)
+    currentRotation = 0;
     dial.style.transform = `rotate(${currentRotation}deg)`;
   }
 });
