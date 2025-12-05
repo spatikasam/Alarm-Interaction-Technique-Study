@@ -176,33 +176,42 @@ body {
 }
 .alarm-left { display: flex; flex-direction: column; }
 
-.switch {
+/* iOS-style toggle switch */
+.alarm-toggle {
   width: 51px;
   height: 31px;
   border-radius: 16px;
-  background: #34c759;
   position: relative;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background-color 0.3s ease;
+  flex-shrink: 0;
 }
 
-.switch.off {
+.alarm-toggle.on {
+  background: #34c759;
+}
+
+.alarm-toggle.off {
   background: #39393d;
 }
 
-.switch-knob {
+.alarm-toggle::after {
+  content: '';
+  position: absolute;
   width: 27px;
   height: 27px;
   border-radius: 50%;
   background: #fff;
-  position: absolute;
   top: 2px;
-  left: 22px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: left 0.3s ease;
 }
 
-.switch.off .switch-knob {
+.alarm-toggle.on::after {
+  left: 22px;
+}
+
+.alarm-toggle.off::after {
   left: 2px;
 }
 

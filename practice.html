@@ -191,14 +191,15 @@
         const isTarget = i === targetIdx;
         const isOn = isTarget || onIndices.has(i);
         const row = document.createElement('div');
-        row.className = 'alarm-row'; // No special highlighting for target
+        row.className = 'alarm-row';
         row.dataset.h = a.h;
+        row.dataset.isTarget = isTarget;
         row.innerHTML = `
           <div class="alarm-left">
             <div><span class="alarm-time">${time}</span><span class="alarm-am">${ap}</span></div>
             <div class="alarm-label">${a.label}</div>
           </div>
-          <div class="switch${isOn ? '' : ' off'}"><div class="switch-knob"></div></div>
+          <div class="alarm-toggle ${isOn ? 'on' : 'off'}" data-h="${a.h}"></div>
         `;
         dom.scroll.appendChild(row);
       });
@@ -312,36 +313,22 @@ Technique: ${store.trial.tech}`;
     }
 
     document.addEventListener('click', (e) => {
-      console.log('🖱️ Click detected, store.active:', store.active, 'Target:', e.target.className);
       if (!store.active) return;
       
-      // Check if clicking on a switch (toggle button) or its child
-      let sw = e.target.closest('.switch');
+      // Find the toggle element
+      const toggle = e.target.closest('.alarm-toggle');
+      if (!toggle) return;
       
-      // If not found, check if the target itself is the switch
-      if (!sw && e.target.classList.contains('switch')) {
-        sw = e.target;
-      }
-      
-      // If still not found, check if we clicked on switch-knob
-      if (!sw && e.target.classList.contains('switch-knob')) {
-        sw = e.target.parentElement;
-      }
-      
-      console.log('  Switch element found:', !!sw);
-      if (!sw) return;
-      
-      const row = sw.closest('.alarm-row');
-      console.log('  Alarm row found:', !!row);
-      if (!row) return;
-
-      const clickH = +row.dataset.h;
-      const wasOff = sw.classList.contains('off');
+      const clickH = +toggle.dataset.h;
+      const wasOff = toggle.classList.contains('off');
       
       console.log(`Clicked alarm at ${clickH}:00, target is ${store.target.h}:00, wasOff: ${wasOff}`);
       
       // Toggle the switch
-      sw.classList.toggle('off');
+      toggle.classList.toggle('off');
+      toggle.classList.toggle('on');
+      
+      const row = toggle.closest('.alarm-row');
       
       if (clickH === store.target.h && wasOff) {
         console.log('✅ Correct alarm turned off! Moving to next trial...');
@@ -350,10 +337,12 @@ Technique: ${store.trial.tech}`;
         stopTimer();
         store.active = false;
         
-        // Visual feedback for correct alarm - make it very obvious
-        row.style.transition = 'all 0.3s ease';
-        row.style.backgroundColor = '#34c759 !important';
-        row.style.color = '#ffffff';
+        // Visual feedback for correct alarm
+        if (row) {
+          row.style.transition = 'all 0.3s ease';
+          row.style.backgroundColor = '#34c759';
+          row.style.color = '#ffffff';
+        }
         
         // Vibrate success pattern if supported
         if (navigator.vibrate) {
@@ -361,24 +350,30 @@ Technique: ${store.trial.tech}`;
         }
         
         setTimeout(() => {
-          row.style.backgroundColor = '';
-          row.style.color = '';
+          if (row) {
+            row.style.backgroundColor = '';
+            row.style.color = '';
+          }
           finalizeTrial();
         }, 600);
       } else if (clickH !== store.target.h && wasOff) {
         store.errors++;
         console.log(`❌ Wrong alarm! Errors: ${store.errors}`);
         
-        // Visual feedback for wrong alarm - make it very obvious
-        row.style.transition = 'all 0.2s ease';
-        row.style.backgroundColor = '#ff3b30 !important';
-        row.style.color = '#ffffff';
-        row.style.transform = 'scale(0.98)';
+        // Visual feedback for wrong alarm
+        if (row) {
+          row.style.transition = 'all 0.2s ease';
+          row.style.backgroundColor = '#ff3b30';
+          row.style.color = '#ffffff';
+          row.style.transform = 'scale(0.98)';
+        }
         
         setTimeout(() => {
-          row.style.backgroundColor = '';
-          row.style.color = '';
-          row.style.transform = '';
+          if (row) {
+            row.style.backgroundColor = '';
+            row.style.color = '';
+            row.style.transform = '';
+          }
         }, 600);
         
         // Vibrate error pattern if supported
